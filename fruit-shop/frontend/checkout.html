@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結帳 | 果實搬運工</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="/frontend/" class="logo">
+                <span class="logo-icon">🍇</span>
+                <span>果實搬運工</span>
+            </a>
+            <div class="header-actions">
+                <a href="/frontend/cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" style="display: none;">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title"><i class="fas fa-credit-card"></i> 結帳</h1>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="checkout-container" id="checkout-container">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© 2025 果實搬運工 Fruit Porter. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/cart.js"></script>
+    <script src="/frontend/js/main.js"></script>
+    <script>
+        let cartItems = [];
+        let cartTotal = 0;
+        let userCredit = 0;
+
+        async function loadCheckout() {
+            const container = document.getElementById('checkout-container');
+
+            if (!TokenManager.isLoggedIn()) {
+                window.location.href = '/frontend/login.html';
+                return;
+            }
+
+            try {
+                const { items, total } = await API.cart.get();
+
+                if (items.length === 0) {
+                    window.location.href = '/frontend/cart.html';
+                    return;
+                }
+
+                cartItems = items;
+                cartTotal = total;
+
+                const user = TokenManager.getUser();
+                const profile = (await API.auth.getProfile()).user;
+                userCredit = profile.credit || 0;
+
+                const shipping = total >= 799 ? 0 : 100;
+                const finalTotal = total + shipping;
+                const hasEnoughCredit = userCredit >= finalTotal;
+
+                container.innerHTML = `
+                    <div class="checkout-form">
+                        <h3><i class="fas fa-truck"></i> 收件資訊</h3>
+                        <form id="checkout-form">
+                            <div class="form-group">
+                                <label>收件人姓名 *</label>
+                                <input type="text" id="shipping_name" value="${profile.name || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>聯絡電話 *</label>
+                                <input type="tel" id="shipping_phone" value="${profile.phone || ''}" placeholder="0912-345-678" required>
+                            </div>
+                            <div class="form-group">
+                                <label>收件地址 *</label>
+                                <input type="text" id="shipping_address" value="${profile.address || ''}" placeholder="請輸入完整地址" required>
+                            </div>
+                            <div class="form-group">
+                                <label>訂單備註</label>
+                                <textarea id="notes" rows="3" placeholder="如有特殊需求請填寫"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="cart-summary">
+                        <h3>訂單明細</h3>
+                        
+                        <!-- 額度顯示 -->
+                        <div style="margin-bottom: 20px; padding: 15px; border-radius: 12px; background: ${hasEnoughCredit ? 'rgba(45, 138, 78, 0.15)' : 'rgba(231, 76, 60, 0.15)'}; border: 1px solid ${hasEnoughCredit ? 'rgba(45, 138, 78, 0.3)' : 'rgba(231, 76, 60, 0.3)'};">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-wallet" style="color: ${hasEnoughCredit ? '#2d8a4e' : '#e74c3c'};"></i>
+                                    您的額度
+                                </span>
+                                <strong style="font-size: 1.2rem; color: ${hasEnoughCredit ? '#2d8a4e' : '#e74c3c'};">$${userCredit.toLocaleString()}</strong>
+                            </div>
+                            ${!hasEnoughCredit ? `
+                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(231, 76, 60, 0.3);">
+                                    <p style="color: #e74c3c; font-weight: 600; margin: 0;">
+                                        <i class="fas fa-exclamation-triangle"></i> 額度不足，請聯絡管理人員
+                                    </p>
+                                    <p style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin: 5px 0 0 0;">
+                                        需要額度: $${finalTotal.toLocaleString()}，目前額度: $${userCredit.toLocaleString()}
+                                    </p>
+                                </div>
+                            ` : `
+                                <p style="color: #2d8a4e; font-size: 0.85rem; margin: 5px 0 0 0;">
+                                    ✓ 額度充足，可以結帳
+                                </p>
+                            `}
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            ${items.map(item => `
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <span style="flex: 1;">${item.name} x ${item.quantity}</span>
+                                    <span>${formatPrice(item.price * item.quantity)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="summary-row">
+                            <span>商品小計</span>
+                            <span>${formatPrice(total)}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>運費</span>
+                            <span>${shipping === 0 ? '免運費' : formatPrice(shipping)}</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>總金額</span>
+                            <span>${formatPrice(finalTotal)}</span>
+                        </div>
+                        ${hasEnoughCredit ? `
+                            <button type="submit" class="btn btn-primary" onclick="submitOrder()">
+                                <i class="fas fa-check"></i> 確認下單
+                            </button>
+                        ` : `
+                            <button type="button" class="btn" style="background: #666; cursor: not-allowed;" disabled>
+                                <i class="fas fa-ban"></i> 額度不足，無法下單
+                            </button>
+                        `}
+                        <a href="/frontend/cart.html" class="btn btn-outline" style="margin-top: 10px;">
+                            <i class="fas fa-arrow-left"></i> 返回購物車
+                        </a>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('載入結帳頁失敗:', error);
+                container.innerHTML = '<p style="color: #e74c3c; text-align: center;">載入失敗，請稍後再試</p>';
+            }
+        }
+
+        async function submitOrder() {
+            const shipping_name = document.getElementById('shipping_name').value.trim();
+            const shipping_phone = document.getElementById('shipping_phone').value.trim();
+            const shipping_address = document.getElementById('shipping_address').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+
+            if (!shipping_name || !shipping_phone || !shipping_address) {
+                showToast('請填寫完整的收件資訊', 'error');
+                return;
+            }
+
+            // 重新檢查額度
+            try {
+                const profile = (await API.auth.getProfile()).user;
+                const { total } = await API.cart.get();
+                const shipping = total >= 799 ? 0 : 100;
+                const finalTotal = total + shipping;
+
+                if ((profile.credit || 0) < finalTotal) {
+                    showToast('額度不足，請聯絡管理人員', 'error');
+                    return;
+                }
+            } catch (error) {
+                showToast('驗證額度失敗，請稍後再試', 'error');
+                return;
+            }
+
+            try {
+                const result = await API.orders.create({
+                    shipping_name,
+                    shipping_phone,
+                    shipping_address,
+                    notes
+                });
+
+                showToast('訂單建立成功！', 'success');
+
+                // 跳轉到訂單頁面
+                setTimeout(() => {
+                    window.location.href = '/frontend/orders.html';
+                }, 1500);
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCheckout);
+    </script>
+</body>
+
+</html>

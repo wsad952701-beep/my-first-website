@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員管理 | 果實搬運工 後台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+    <style>
+        /* 會員狀態標籤 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(45, 138, 78, 0.2);
+            color: #2d8a4e;
+        }
+
+        .status-suspended {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+        }
+
+        .status-deleted {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        /* 操作下拉選單 */
+        .action-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary-color);
+            background: rgba(45, 138, 78, 0.1);
+        }
+
+        .action-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 5px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            min-width: 160px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+        }
+
+        .action-dropdown.open .action-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .action-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .action-menu-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .action-menu-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .action-menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .action-menu-item.active-item {
+            color: #2d8a4e;
+        }
+
+        .action-menu-item.suspend-item {
+            color: #f39c12;
+        }
+
+        .action-menu-item.delete-item {
+            color: #e74c3c;
+        }
+
+        .action-menu-item i {
+            width: 18px;
+            text-align: center;
+        }
+
+        /* 統計摘要 */
+        .members-summary {
+            display: flex;
+            gap: 20px;
+            padding: 16px 20px;
+            background: rgba(45, 138, 78, 0.1);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .summary-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-stat .label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .summary-stat .value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent-orange);
+        }
+
+        /* 狀態篩選按鈕 */
+        .status-filters {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .status-filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .status-filter-btn.active,
+        .status-filter-btn:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+
+        /* 確認對話框 */
+        .confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .confirm-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .confirm-dialog {
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .confirm-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .confirm-icon.warning {
+            color: #f39c12;
+        }
+
+        .confirm-icon.danger {
+            color: #e74c3c;
+        }
+
+        .confirm-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .confirm-message {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 25px;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .confirm-actions .btn {
+            min-width: 100px;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span>🍇</span>
+                    <span>果實搬運工</span>
+                </div>
+                <div class="sidebar-subtitle">後台管理系統</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">主要功能</div>
+                    <a href="/admin/dashboard.html" class="nav-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>儀表板</span>
+                    </a>
+                    <a href="/admin/orders.html" class="nav-item">
+                        <i class="fas fa-box"></i>
+                        <span>訂單管理</span>
+                    </a>
+                    <a href="/admin/products.html" class="nav-item">
+                        <i class="fas fa-apple-alt"></i>
+                        <span>商品管理</span>
+                    </a>
+                    <a href="/admin/members.html" class="nav-item active">
+                        <i class="fas fa-users"></i>
+                        <span>會員管理</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">快捷操作</div>
+                    <a href="/frontend/" class="nav-item" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>前往前台</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title">👥 會員管理</h1>
+                <div class="top-bar-actions">
+                    <button class="logout-btn" title="登出">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 會員統計 -->
+            <div class="members-summary">
+                <div class="summary-stat">
+                    <span class="label">📊 總會員數：</span>
+                    <span class="value" id="total-members">0</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="label">✅ 正常：</span>
+                    <span class="value" id="active-members" style="color: #2d8a4e;">0</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="label">⏸️ 停用：</span>
+                    <span class="value" id="suspended-members" style="color: #f39c12;">0</span>
+                </div>
+                <div class="summary-stat">
+                    <span class="label">💰 總消費：</span>
+                    <span class="value" id="total-revenue">$0</span>
+                </div>
+
+                <!-- 狀態篩選 -->
+                <div class="status-filters">
+                    <button class="status-filter-btn active" data-status="all">全部</button>
+                    <button class="status-filter-btn" data-status="active">正常</button>
+                    <button class="status-filter-btn" data-status="suspended">停用</button>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="search-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="搜尋會員名稱、Email、電話...">
+                </div>
+            </div>
+
+            <!-- Members Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>會員</th>
+                                    <th>電話</th>
+                                    <th>狀態</th>
+                                    <th>💰 額度</th>
+                                    <th>訂單數</th>
+                                    <th>消費總額</th>
+                                    <th>註冊時間</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="members-tbody">
+                                <tr>
+                                    <td colspan="8" class="loading">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 確認對話框 -->
+    <div class="confirm-modal" id="confirm-modal">
+        <div class="confirm-dialog">
+            <div class="confirm-icon" id="confirm-icon">⚠️</div>
+            <h3 class="confirm-title" id="confirm-title">確認操作</h3>
+            <p class="confirm-message" id="confirm-message">確定要執行此操作嗎？</p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">取消</button>
+                <button class="btn" id="confirm-btn" onclick="executeAction()">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 額度調整對話框 -->
+    <div class="confirm-modal" id="credit-modal">
+        <div class="confirm-dialog"
+            style="max-width: 480px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 2px solid #ff9800;">
+            <div class="confirm-icon" style="font-size: 4rem; margin-bottom: 10px;">💰</div>
+            <h3 class="confirm-title"
+                style="color: #ffffff; font-size: 1.6rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                調整會員額度</h3>
+            <p class="confirm-message" id="credit-member-name"
+                style="color: #ffeb3b; font-weight: 700; font-size: 1.3rem; margin: 15px 0;">會員名稱</p>
+            <div style="margin-bottom: 20px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 12px;">
+                <div
+                    style="display: flex; gap: 15px; justify-content: center; align-items: center; margin-bottom: 20px;">
+                    <span style="color: #ffffff; font-weight: 600; font-size: 1.1rem;">目前額度：</span>
+                    <strong id="current-credit"
+                        style="color: #00ff88; font-size: 2rem; font-weight: 800; text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);">$0</strong>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap;">
+                    <input type="number" id="credit-amount" placeholder="金額" style="
+                        width: 100px; padding: 12px; border-radius: 8px; 
+                        background: #ffffff; border: 2px solid #ff9800;
+                        color: #333; font-size: 1.1rem; text-align: center; font-weight: 700;">
+                    <button class="btn" onclick="adjustCredit(1)"
+                        style="padding: 12px 20px; background: #4caf50; color: #fff; font-weight: 700; font-size: 1rem;">➕
+                        增加</button>
+                    <button class="btn" onclick="adjustCredit(-1)"
+                        style="padding: 12px 20px; background: #f44336; color: #fff; font-weight: 700; font-size: 1rem;">➖
+                        減少</button>
+                </div>
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <span style="color: #ffffff; font-size: 0.95rem;">或直接設定額度：</span>
+                    <button class="btn" onclick="setCredit()"
+                        style="padding: 10px 20px; margin-left: 10px; background: #ff9800; color: #000; font-weight: 700;">設定為此金額</button>
+                </div>
+            </div>
+            <div class="confirm-actions">
+                <button class="btn" onclick="closeCreditModal()"
+                    style="padding: 12px 30px; background: #666; color: #fff; font-size: 1rem;">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin/js/api.js"></script>
+    <script>
+        if (!checkAdminAuth()) { }
+
+        let members = [];
+        let currentFilter = 'all';
+        let pendingAction = null;
+
+        async function loadMembers() {
+            const search = document.getElementById('search-input').value;
+
+            try {
+                const params = {};
+                if (search) params.search = search;
+
+                const data = await AdminAPI.members.getAll(params);
+                members = data.members.map(m => ({
+                    ...m,
+                    status: m.status || 'active' // 預設狀態為正常
+                }));
+                updateStats();
+                renderMembers();
+            } catch (error) {
+                console.error('載入會員失敗:', error);
+                showToast('載入會員失敗', 'error');
+            }
+        }
+
+        function updateStats() {
+            const active = members.filter(m => m.status === 'active').length;
+            const suspended = members.filter(m => m.status === 'suspended').length;
+            const totalSpent = members.reduce((sum, m) => sum + (m.total_spent || 0), 0);
+
+            document.getElementById('total-members').textContent = members.length;
+            document.getElementById('active-members').textContent = active;
+            document.getElementById('suspended-members').textContent = suspended;
+            document.getElementById('total-revenue').textContent = formatPrice(totalSpent);
+        }
+
+        function getFilteredMembers() {
+            if (currentFilter === 'all') return members;
+            return members.filter(m => m.status === currentFilter);
+        }
+
+        function renderMembers() {
+            const tbody = document.getElementById('members-tbody');
+            const filtered = getFilteredMembers();
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">沒有找到會員</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(member => {
+                const statusBadge = getStatusBadge(member.status);
+                const isActive = member.status === 'active' || !member.status;
+                return `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: ${getAvatarColor(member.status)}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                👤
+                            </div>
+                            <div>
+                                <strong>${member.name}</strong>
+                                <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">${member.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${member.phone || '-'}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;">
+                            <strong style="color: ${(member.credit || 0) > 0 ? '#f4a261' : 'rgba(255,255,255,0.5)'};">$${(member.credit || 0).toLocaleString()}</strong>
+                            <button class="action-btn" style="padding: 4px 10px; font-size: 0.8rem;" onclick="openCreditModal(${member.id}, '${member.name.replace(/'/g, "\\'")}', ${member.credit || 0})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </span>
+                    </td>
+                    <td><strong>${member.order_count}</strong> 筆</td>
+                    <td><strong style="color: var(--accent-orange);">${formatPrice(member.total_spent)}</strong></td>
+                    <td>${formatDate(member.created_at)}</td>
+                    <td>
+                        <div class="action-dropdown" data-id="${member.id}">
+                            <button class="action-btn" onclick="event.stopPropagation(); toggleActionMenu(${member.id})">
+                                <i class="fas fa-ellipsis-v"></i>
+                                操作
+                            </button>
+                            <div class="action-menu">
+                                ${isActive ? `
+                                    <div class="action-menu-item suspend-item" onclick="event.stopPropagation(); confirmSuspend(${member.id}, '${member.name.replace(/'/g, "\\'")}')">
+                                        <i class="fas fa-pause-circle"></i>
+                                        停用帳號
+                                    </div>
+                                ` : `
+                                    <div class="action-menu-item active-item" onclick="event.stopPropagation(); confirmActivate(${member.id}, '${member.name.replace(/'/g, "\\'")}')">
+                                        <i class="fas fa-check-circle"></i>
+                                        啟用帳號
+                                    </div>
+                                `}
+                                <div class="action-menu-item delete-item" onclick="event.stopPropagation(); confirmDelete(${member.id}, '${member.name.replace(/'/g, "\\'")}')">
+                                    <i class="fas fa-trash-alt"></i>
+                                    刪除帳號
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'active':
+                    return '<span class="status-badge status-active"><i class="fas fa-check-circle"></i> 正常</span>';
+                case 'suspended':
+                    return '<span class="status-badge status-suspended"><i class="fas fa-pause-circle"></i> 停用</span>';
+                default:
+                    return '<span class="status-badge status-active"><i class="fas fa-check-circle"></i> 正常</span>';
+            }
+        }
+
+        function getAvatarColor(status) {
+            switch (status) {
+                case 'active': return 'var(--primary-color)';
+                case 'suspended': return '#f39c12';
+                default: return 'var(--primary-color)';
+            }
+        }
+
+        function toggleActionMenu(memberId) {
+            // 關閉其他已開啟的選單
+            document.querySelectorAll('.action-dropdown.open').forEach(d => {
+                if (d.dataset.id != memberId) {
+                    d.classList.remove('open');
+                }
+            });
+
+            const dropdown = document.querySelector(`.action-dropdown[data-id="${memberId}"]`);
+            dropdown.classList.toggle('open');
+        }
+
+        // 點擊外部關閉選單
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.action-dropdown')) {
+                document.querySelectorAll('.action-dropdown.open').forEach(d => d.classList.remove('open'));
+            }
+        });
+
+        // 確認操作相關
+        function confirmSuspend(memberId, memberName) {
+            pendingAction = { type: 'suspend', memberId, memberName };
+            document.getElementById('confirm-icon').textContent = '⏸️';
+            document.getElementById('confirm-icon').className = 'confirm-icon warning';
+            document.getElementById('confirm-title').textContent = '停用帳號';
+            document.getElementById('confirm-message').textContent = `確定要停用「${memberName}」的帳號嗎？停用後該會員將無法登入。`;
+            document.getElementById('confirm-btn').className = 'btn btn-warning';
+            document.getElementById('confirm-btn').textContent = '停用';
+            document.getElementById('confirm-modal').classList.add('show');
+        }
+
+        function confirmActivate(memberId, memberName) {
+            pendingAction = { type: 'activate', memberId, memberName };
+            document.getElementById('confirm-icon').textContent = '✅';
+            document.getElementById('confirm-icon').className = 'confirm-icon';
+            document.getElementById('confirm-icon').style.color = '#2d8a4e';
+            document.getElementById('confirm-title').textContent = '啟用帳號';
+            document.getElementById('confirm-message').textContent = `確定要啟用「${memberName}」的帳號嗎？`;
+            document.getElementById('confirm-btn').className = 'btn btn-primary';
+            document.getElementById('confirm-btn').textContent = '啟用';
+            document.getElementById('confirm-modal').classList.add('show');
+        }
+
+        function confirmDelete(memberId, memberName) {
+            pendingAction = { type: 'delete', memberId, memberName };
+            document.getElementById('confirm-icon').textContent = '🗑️';
+            document.getElementById('confirm-icon').className = 'confirm-icon danger';
+            document.getElementById('confirm-title').textContent = '刪除帳號';
+            document.getElementById('confirm-message').textContent = `確定要刪除「${memberName}」的帳號嗎？此操作無法復原！`;
+            document.getElementById('confirm-btn').className = 'btn btn-danger';
+            document.getElementById('confirm-btn').textContent = '刪除';
+            document.getElementById('confirm-modal').classList.add('show');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.remove('show');
+            pendingAction = null;
+        }
+
+        async function executeAction() {
+            if (!pendingAction) return;
+
+            const { type, memberId, memberName } = pendingAction;
+
+            try {
+                switch (type) {
+                    case 'suspend':
+                        await AdminAPI.members.updateStatus(memberId, 'suspended');
+                        showToast(`已停用「${memberName}」的帳號`, 'success');
+                        break;
+                    case 'activate':
+                        await AdminAPI.members.updateStatus(memberId, 'active');
+                        showToast(`已啟用「${memberName}」的帳號`, 'success');
+                        break;
+                    case 'delete':
+                        await AdminAPI.members.delete(memberId);
+                        showToast(`已刪除「${memberName}」的帳號`, 'success');
+                        break;
+                }
+
+                closeConfirmModal();
+                loadMembers();
+            } catch (error) {
+                showToast(error.message || '操作失敗', 'error');
+            }
+        }
+
+        // 額度調整相關
+        let currentCreditMember = null;
+
+        function openCreditModal(memberId, memberName, currentCredit) {
+            currentCreditMember = { id: memberId, name: memberName, credit: currentCredit };
+            document.getElementById('credit-member-name').textContent = `會員：${memberName}`;
+            document.getElementById('current-credit').textContent = `$${currentCredit.toLocaleString()}`;
+            document.getElementById('credit-amount').value = '';
+            document.getElementById('credit-modal').classList.add('show');
+        }
+
+        function closeCreditModal() {
+            document.getElementById('credit-modal').classList.remove('show');
+            currentCreditMember = null;
+        }
+
+        async function adjustCredit(direction) {
+            if (!currentCreditMember) return;
+            const amount = parseInt(document.getElementById('credit-amount').value);
+            if (!amount || amount <= 0) {
+                showToast('請輸入有效的金額', 'error');
+                return;
+            }
+            const adjustment = amount * direction;
+            try {
+                const result = await AdminAPI.members.updateCredit(currentCreditMember.id, { adjustment });
+                showToast(`已${direction > 0 ? '增加' : '減少'} $${amount} 額度`, 'success');
+                currentCreditMember.credit = result.credit;
+                document.getElementById('current-credit').textContent = `$${result.credit.toLocaleString()}`;
+                loadMembers();
+            } catch (error) {
+                showToast(error.message || '調整額度失敗', 'error');
+            }
+        }
+
+        async function setCredit() {
+            if (!currentCreditMember) return;
+            const credit = parseInt(document.getElementById('credit-amount').value);
+            if (isNaN(credit) || credit < 0) {
+                showToast('請輸入有效的金額', 'error');
+                return;
+            }
+            try {
+                const result = await AdminAPI.members.updateCredit(currentCreditMember.id, { credit });
+                showToast(`已設定額度為 $${credit}`, 'success');
+                currentCreditMember.credit = result.credit;
+                document.getElementById('current-credit').textContent = `$${result.credit.toLocaleString()}`;
+                loadMembers();
+            } catch (error) {
+                showToast(error.message || '設定額度失敗', 'error');
+            }
+        }
+
+        // 狀態篩選
+        document.querySelectorAll('.status-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.status;
+                renderMembers();
+            });
+        });
+
+        // 搜尋
+        document.getElementById('search-input').addEventListener('input', debounce(loadMembers, 300));
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', loadMembers);
+    </script>
+</body>
+
+</html>

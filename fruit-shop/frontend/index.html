@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="果實搬運工 - 專營日本空運、各國高檔水果、台灣精緻果物、年節禮盒、團購優惠、企業送禮">
+    <title>果實搬運工 | 精緻水果專賣 - 當日配送</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 首頁專用加強樣式 */
+
+        /* 公告條 */
+        .announcement-bar {
+            background: linear-gradient(90deg, #d32f2f 0%, #c62828 50%, #d32f2f 100%);
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1100;
+            animation: slideText 20s linear infinite;
+        }
+
+        .announcement-bar span {
+            display: inline-block;
+            padding: 0 30px;
+        }
+
+        .announcement-bar i {
+            color: #ffd54f;
+            margin-right: 8px;
+        }
+
+        @keyframes slideText {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .header {
+            top: 38px;
+        }
+
+        /* Hero 輪播 */
+        .hero-slider {
+            margin-top: 168px;
+            position: relative;
+            overflow: hidden;
+            height: 550px;
+        }
+
+        .hero-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+        }
+
+        .hero-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-slide-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-slide-content h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+        }
+
+        .hero-slide-content p {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+        }
+
+        .slider-nav {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .slider-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+
+        /* 促銷橫幅 */
+        .promo-banners {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+        }
+
+        .promo-banner {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .promo-banner:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .promo-banner i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ffd54f 0%, #ff6b35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .promo-banner h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .promo-banner p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 春節禮盒專區 */
+        .cny-section {
+            background: linear-gradient(135deg, #8B0000 0%, #c62828 50%, #8B0000 100%);
+            padding: 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cny-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='10' y='50' font-size='30'%3E🧧%3C/text%3E%3C/svg%3E") repeat;
+            opacity: 0.1;
+        }
+
+        .cny-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cny-header h2 {
+            font-size: 2.5rem;
+            color: #ffd54f;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .cny-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .cny-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cny-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .cny-card:hover {
+            transform: translateY(-10px);
+            border-color: #ffd54f;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .cny-card-image {
+            height: 220px;
+            overflow: hidden;
+        }
+
+        .cny-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .cny-card:hover .cny-card-image img {
+            transform: scale(1.1);
+        }
+
+        .cny-card-content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .cny-card-content h3 {
+            font-size: 1.2rem;
+            color: #ffd54f;
+            margin-bottom: 8px;
+        }
+
+        .cny-card-content .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .cny-card-content .original-price {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: line-through;
+            margin-left: 10px;
+        }
+
+        /* 季節限定區 */
+        .seasonal-section {
+            padding: 60px 0;
+            background: linear-gradient(180deg, #0f0f1e 0%, #1a1a2e 100%);
+        }
+
+        .seasonal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .seasonal-header h2 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .seasonal-header h2::before {
+            content: '✨';
+            font-size: 1.5rem;
+        }
+
+        .seasonal-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .seasonal-tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .seasonal-tab.active,
+        .seasonal-tab:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .seasonal-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        .seasonal-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .seasonal-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-orange);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .seasonal-card-image {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .seasonal-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .seasonal-card:hover .seasonal-card-image img {
+            transform: scale(1.08);
+        }
+
+        .seasonal-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f4a261 100%);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .seasonal-card-content {
+            padding: 20px;
+        }
+
+        .seasonal-card-content h3 {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .seasonal-card-content .origin {
+            font-size: 0.85rem;
+            color: var(--primary-light);
+            margin-bottom: 10px;
+        }
+
+        .seasonal-card-content .price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-orange);
+        }
+
+        /* 產品分類視覺區 */
+        .category-visual {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .category-visual h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 40px;
+        }
+
+        .category-visual-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .category-visual-card {
+            position: relative;
+            height: 250px;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .category-visual-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .category-visual-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .category-visual-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        }
+
+        .category-visual-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 25px;
+            z-index: 1;
+        }
+
+        .category-visual-content h3 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .category-visual-content p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 為什麼選擇我們 */
+        .why-us {
+            padding: 60px 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .why-us h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 40px;
+        }
+
+        .why-us-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .why-us-item {
+            text-align: center;
+        }
+
+        .why-us-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .why-us-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .why-us-item p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 信任標章 */
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .trust-badge i {
+            font-size: 1.5rem;
+            color: var(--primary-light);
+        }
+
+        /* LINE 浮動按鈕 */
+        .floating-line {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .floating-line a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: #06C755;
+            border-radius: 50%;
+            box-shadow: 0 5px 20px rgba(6, 199, 85, 0.4);
+            transition: all 0.3s;
+        }
+
+        .floating-line a:hover {
+            transform: scale(1.1);
+        }
+
+        .floating-line i {
+            font-size: 1.8rem;
+            color: #fff;
+        }
+
+        /* RWD */
+        @media (max-width: 1024px) {
+            .promo-banners {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cny-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .seasonal-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .category-visual-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-slider {
+                height: 400px;
+                margin-top: 150px;
+            }
+
+            .hero-slide-content h2 {
+                font-size: 2rem;
+            }
+
+            .promo-banners {
+                grid-template-columns: 1fr;
+            }
+
+            .cny-grid,
+            .seasonal-grid,
+            .category-visual-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .why-us-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .seasonal-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 公告條 -->
+    <div class="announcement-bar">
+        <span><i class="fas fa-truck-fast"></i> 🧧 新春限時優惠！全館滿 $1,500 免運費 🧧</span>
+        <span><i class="fas fa-gift"></i> 🎁 春節禮盒預購中，限量供應 🎁</span>
+        <span><i class="fas fa-truck-fast"></i> 🧧 新春限時優惠！全館滿 $1,500 免運費 🧧</span>
+        <span><i class="fas fa-gift"></i> 🎁 春節禮盒預購中，限量供應 🎁</span>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">🍇</span>
+                <span>果實搬運工</span>
+            </a>
+            <div class="search-box">
+                <input type="text" placeholder="搜尋商品...">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="header-actions">
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" style="display: none;">0</span>
+                </a>
+                <a href="login.html" class="login-link">
+                    <i class="fas fa-user"></i>
+                    <span>登入</span>
+                </a>
+                <a href="orders.html" class="user-link" style="display: none;">
+                    <i class="fas fa-user-check"></i>
+                    <span class="user-name">會員</span>
+                </a>
+                <button class="logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="index.html" class="active">🏠 首頁</a>
+                <a href="products.html">🛒 全部商品</a>
+                <a href="products.html?category=1">🎁 春節禮盒</a>
+                <a href="products.html?category=2">✨ 季節限定</a>
+                <a href="products.html?category=3">🌍 進口水果</a>
+                <a href="products.html?category=4">🇯🇵 日本嚴選</a>
+                <a href="products.html?category=5">🇹🇼 台灣在地</a>
+                <a href="products.html?category=6">💰 優惠專區</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero 輪播 -->
+    <div class="hero-slider">
+        <div class="hero-slide active">
+            <img src="images/hero_banner_premium.png" alt="FRUIT PORTER 精品水果">
+            <div class="hero-slide-content">
+                <h2>🍇 果實搬運工 精品水果 🍇</h2>
+                <p>嚴選世界頂級水果 / 禮盒首選 / 當日配送</p>
+                <a href="products.html" class="btn btn-primary">立即選購 →</a>
+            </div>
+        </div>
+        <div class="hero-slide">
+            <img src="images/strawberry_seasonal_1769721085772.png" alt="日本草莓">
+            <div class="hero-slide-content">
+                <h2>✨ 季節限定 日本草莓 ✨</h2>
+                <p>熊本博多甘王，甜度破表的頂級享受</p>
+                <a href="products.html?category=2" class="btn btn-primary">限量搶購 →</a>
+            </div>
+        </div>
+        <div class="hero-slide">
+            <img src="images/cherry_box_1769721098855.png" alt="進口櫻桃">
+            <div class="hero-slide-content">
+                <h2>🍒 冬季限定 空運櫻桃 🍒</h2>
+                <p>智利直送，大顆飽滿、鮮甜多汁</p>
+                <a href="products.html?category=3" class="btn btn-primary">馬上購買 →</a>
+            </div>
+        </div>
+        <div class="slider-nav">
+            <div class="slider-dot active" onclick="goToSlide(0)"></div>
+            <div class="slider-dot" onclick="goToSlide(1)"></div>
+            <div class="slider-dot" onclick="goToSlide(2)"></div>
+        </div>
+    </div>
+
+    <!-- 促銷優勢 -->
+    <section class="promo-banners">
+        <div class="container" style="display: contents;">
+            <div class="promo-banner">
+                <i class="fas fa-truck-fast"></i>
+                <h3>當日配送</h3>
+                <p>南高雄地區當日送達</p>
+            </div>
+            <div class="promo-banner">
+                <i class="fas fa-box-open"></i>
+                <h3>滿額免運</h3>
+                <p>全台滿 $1,500 免運</p>
+            </div>
+            <div class="promo-banner">
+                <i class="fas fa-medal"></i>
+                <h3>品質保證</h3>
+                <p>嚴選頂級進口水果</p>
+            </div>
+            <div class="promo-banner">
+                <i class="fas fa-refresh"></i>
+                <h3>新鮮直送</h3>
+                <p>產地直送，新鮮保證</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 春節禮盒專區 -->
+    <section class="cny-section">
+        <div class="container">
+            <div class="cny-header">
+                <h2>🧧 春節禮盒專區 🧧</h2>
+                <p>新年送禮首選，精緻包裝、當日配送</p>
+            </div>
+            <div class="cny-grid">
+                <a href="product-detail.html?id=1" class="cny-card">
+                    <div class="cny-card-image">
+                        <img src="images/hero_banner_fruits_1769721071654.png" alt="新年豪華禮盒">
+                    </div>
+                    <div class="cny-card-content">
+                        <h3>新年豪華禮盒</h3>
+                        <div>
+                            <span class="price">$2,880</span>
+                            <span class="original-price">$3,200</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="product-detail.html?id=2" class="cny-card">
+                    <div class="cny-card-image">
+                        <img src="images/gift_box_premium_1769721412356.png" alt="經典水果禮盒">
+                    </div>
+                    <div class="cny-card-content">
+                        <h3>經典水果禮盒</h3>
+                        <div>
+                            <span class="price">$1,680</span>
+                            <span class="original-price">$1,880</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="products.html?category=1" class="cny-card"
+                    style="display: flex; align-items: center; justify-content: center; background: rgba(255,215,0,0.1);">
+                    <div class="cny-card-content">
+                        <h3 style="font-size: 1.5rem;">查看全部禮盒 →</h3>
+                        <p style="color: rgba(255,255,255,0.7);">更多精選禮盒等你挑選</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 季節限定區 -->
+    <section class="seasonal-section">
+        <div class="container">
+            <div class="seasonal-header">
+                <h2>季節限定 當季必買</h2>
+                <div class="seasonal-tabs">
+                    <span class="seasonal-tab active">全部</span>
+                    <span class="seasonal-tab">草莓季</span>
+                    <span class="seasonal-tab">櫻桃季</span>
+                    <span class="seasonal-tab">葡萄季</span>
+                </div>
+            </div>
+            <div class="seasonal-grid">
+                <a href="product-detail.html?id=3" class="seasonal-card">
+                    <div class="seasonal-card-image">
+                        <img src="images/strawberry_seasonal_1769721085772.png" alt="日本草莓">
+                        <span class="seasonal-badge">🔥 熱銷</span>
+                    </div>
+                    <div class="seasonal-card-content">
+                        <h3>日本草莓 - 博多甘王</h3>
+                        <p class="origin">🇯🇵 熊本縣產</p>
+                        <span class="price">$980</span>
+                    </div>
+                </a>
+                <a href="product-detail.html?id=8" class="seasonal-card">
+                    <div class="seasonal-card-image">
+                        <img src="images/grape_muscat_1769721121816.png" alt="晴王麝香葡萄">
+                        <span class="seasonal-badge">✨ 限量</span>
+                    </div>
+                    <div class="seasonal-card-content">
+                        <h3>日本晴王麝香葡萄</h3>
+                        <p class="origin">🇯🇵 岡山縣產</p>
+                        <span class="price">$1,980</span>
+                    </div>
+                </a>
+                <a href="product-detail.html?id=5" class="seasonal-card">
+                    <div class="seasonal-card-image">
+                        <img src="images/cherry_box_1769721098855.png" alt="智利櫻桃">
+                        <span class="seasonal-badge">🍒 空運</span>
+                    </div>
+                    <div class="seasonal-card-content">
+                        <h3>智利櫻桃 Jumbo</h3>
+                        <p class="origin">🇨🇱 智利直送</p>
+                        <span class="price">$1,280</span>
+                    </div>
+                </a>
+                <a href="product-detail.html?id=7" class="seasonal-card">
+                    <div class="seasonal-card-image">
+                        <img src="images/apple_aomori_1769721134815.png" alt="青森蘋果">
+                        <span class="seasonal-badge">🍎 經典</span>
+                    </div>
+                    <div class="seasonal-card-content">
+                        <h3>日本青森蘋果</h3>
+                        <p class="origin">🇯🇵 青森縣產</p>
+                        <span class="price">$720</span>
+                    </div>
+                </a>
+                <a href="product-detail.html?id=23" class="seasonal-card">
+                    <div class="seasonal-card-image">
+                        <img src="images/strawberry_seasonal_1769721085772.png" alt="韓國草莓">
+                        <span class="seasonal-badge">🍓 新鮮</span>
+                    </div>
+                    <div class="seasonal-card-content">
+                        <h3>韓國草莓</h3>
+                        <p class="origin">🇰🇷 雪嶽山產</p>
+                        <span class="price">$680</span>
+                    </div>
+                </a>
+                <a href="product-detail.html?id=25" class="seasonal-card">
+                    <div class="seasonal-card-image">
+                        <img src="images/cherry_box_1769721098855.png" alt="美國櫻桃">
+                        <span class="seasonal-badge">🍒 特大</span>
+                    </div>
+                    <div class="seasonal-card-content">
+                        <h3>美國櫻桃9.5R</h3>
+                        <p class="origin">🇺🇸 華盛頓州</p>
+                        <span class="price">$980</span>
+                    </div>
+                </a>
+                <a href="product-detail.html?id=27" class="seasonal-card">
+                    <div class="seasonal-card-image">
+                        <img src="images/grape.png" alt="巨峰葡萄">
+                        <span class="seasonal-badge">🍇 日本</span>
+                    </div>
+                    <div class="seasonal-card-content">
+                        <h3>巨峰葡萄</h3>
+                        <p class="origin">🇯🇵 日本進口</p>
+                        <span class="price">$580</span>
+                    </div>
+                </a>
+                <a href="product-detail.html?id=28" class="seasonal-card">
+                    <div class="seasonal-card-image">
+                        <img src="images/grape_muscat_1769721121816.png" alt="貓眼葡萄">
+                        <span class="seasonal-badge">🍇 頂級</span>
+                    </div>
+                    <div class="seasonal-card-content">
+                        <h3>貓眼葡萄</h3>
+                        <p class="origin">🇯🇵 岡山縣產</p>
+                        <span class="price">$1,380</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 產品分類視覺區 -->
+    <section class="category-visual">
+        <div class="container">
+            <h2>🍎 精選產地水果</h2>
+            <div class="category-visual-grid">
+                <a href="products.html?category=4" class="category-visual-card">
+                    <img src="images/apple_aomori_1769721134815.png" alt="日本嚴選">
+                    <div class="category-visual-content">
+                        <h3>🇯🇵 日本職人嚴選</h3>
+                        <p>空運鮮摘、頂級品質</p>
+                    </div>
+                </a>
+                <a href="products.html?category=3" class="category-visual-card">
+                    <img src="images/cherry_box_1769721098855.png" alt="進口水果">
+                    <div class="category-visual-content">
+                        <h3>🌍 各國進口水果</h3>
+                        <p>智利、美國、紐西蘭等</p>
+                    </div>
+                </a>
+                <a href="products.html?category=5" class="category-visual-card">
+                    <img src="images/gift_box_premium_1769721412356.png" alt="台灣在地">
+                    <div class="category-visual-content">
+                        <h3>🇹🇼 台灣在地水果</h3>
+                        <p>小農直送、產地直達</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 為什麼選擇我們 -->
+    <section class="why-us">
+        <div class="container">
+            <h2>✨ 為什麼選擇果實搬運工？</h2>
+            <div class="why-us-grid">
+                <div class="why-us-item">
+                    <div class="why-us-icon">🚚</div>
+                    <h3>當日配送服務</h3>
+                    <p>南高雄地區訂購當日送達</p>
+                </div>
+                <div class="why-us-item">
+                    <div class="why-us-icon">✈️</div>
+                    <h3>產地空運直送</h3>
+                    <p>日本、智利等產地空運，保持最佳鮮度</p>
+                </div>
+                <div class="why-us-item">
+                    <div class="why-us-icon">🎁</div>
+                    <h3>精緻禮盒包裝</h3>
+                    <p>專業禮盒設計，送禮有面子</p>
+                </div>
+                <div class="why-us-item">
+                    <div class="why-us-icon">💯</div>
+                    <h3>品質嚴格把關</h3>
+                    <p>專業團隊精選，不滿意可退換</p>
+                </div>
+            </div>
+            <div class="trust-badges">
+                <div class="trust-badge">
+                    <i class="fas fa-shield-check"></i>
+                    <span>安心購物保障</span>
+                </div>
+                <div class="trust-badge">
+                    <i class="fas fa-credit-card"></i>
+                    <span>多元付款方式</span>
+                </div>
+                <div class="trust-badge">
+                    <i class="fas fa-headset"></i>
+                    <span>專業客服團隊</span>
+                </div>
+                <div class="trust-badge">
+                    <i class="fas fa-star"></i>
+                    <span>五星好評推薦</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>🍇 果實搬運工</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 15px;">
+                        專營日本空運、各國高檔水果<br>
+                        台灣精緻果物、年節禮盒
+                    </p>
+                    <div class="footer-contact">
+                        <p><i class="fas fa-phone"></i> 0800-123-456</p>
+                        <p><i class="fas fa-envelope"></i> service@fruitporter.com</p>
+                        <p><i class="fas fa-clock"></i> 週一至週日 09:00-21:00</p>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>商品分類</h3>
+                    <ul>
+                        <li><a href="products.html?category=1">春節禮盒</a></li>
+                        <li><a href="products.html?category=2">季節限定</a></li>
+                        <li><a href="products.html?category=3">進口水果</a></li>
+                        <li><a href="products.html?category=4">日本嚴選</a></li>
+                        <li><a href="products.html?category=5">台灣在地</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>顧客服務</h3>
+                    <ul>
+                        <li><a href="#">常見問題</a></li>
+                        <li><a href="#">配送說明</a></li>
+                        <li><a href="#">退換貨政策</a></li>
+                        <li><a href="#">會員權益</a></li>
+                        <li><a href="#">聯絡我們</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>關於我們</h3>
+                    <ul>
+                        <li><a href="#">品牌故事</a></li>
+                        <li><a href="#">門市據點</a></li>
+                        <li><a href="#">企業合作</a></li>
+                        <li><a href="#">隱私政策</a></li>
+                        <li><a href="#">服務條款</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 果實搬運工 Fruit Porter. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LINE 浮動按鈕 -->
+    <div class="floating-line">
+        <a href="#" title="加入官方 LINE">
+            <i class="fab fa-line"></i>
+        </a>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Hero 輪播
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.slider-dot');
+
+        function goToSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            currentSlide = n;
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            goToSlide((currentSlide + 1) % slides.length);
+        }
+
+        // 自動輪播
+        setInterval(nextSlide, 5000);
+
+        // 季節標籤過濾
+        const seasonalTabs = document.querySelectorAll('.seasonal-tab');
+        const seasonalCards = document.querySelectorAll('.seasonal-card');
+
+        seasonalTabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                // 更新標籤狀態
+                seasonalTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                const filter = this.textContent.trim();
+
+                seasonalCards.forEach(card => {
+                    const productName = card.querySelector('h3')?.textContent || '';
+
+                    if (filter === '全部') {
+                        card.style.display = '';
+                    } else if (filter === '草莓季') {
+                        card.style.display = productName.includes('草莓') ? '' : 'none';
+                    } else if (filter === '櫻桃季') {
+                        card.style.display = productName.includes('櫻桃') ? '' : 'none';
+                    } else if (filter === '葡萄季') {
+                        card.style.display = productName.includes('葡萄') ? '' : 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

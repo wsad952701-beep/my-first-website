@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訂單管理 | 果實搬運工 後台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span>🍇</span>
+                    <span>果實搬運工</span>
+                </div>
+                <div class="sidebar-subtitle">後台管理系統</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">主要功能</div>
+                    <a href="/admin/dashboard.html" class="nav-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>儀表板</span>
+                    </a>
+                    <a href="/admin/orders.html" class="nav-item active">
+                        <i class="fas fa-box"></i>
+                        <span>訂單管理</span>
+                    </a>
+                    <a href="/admin/products.html" class="nav-item">
+                        <i class="fas fa-apple-alt"></i>
+                        <span>商品管理</span>
+                    </a>
+                    <a href="/admin/members.html" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>會員管理</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">快捷操作</div>
+                    <a href="/frontend/" class="nav-item" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>前往前台</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title">📦 訂單管理</h1>
+                <div class="top-bar-actions">
+                    <button class="logout-btn" title="登出">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Bar -->
+            <div class="summary-bar" id="summary-bar">
+                <div class="summary-item">
+                    <span class="label">📊 訂單數量：</span>
+                    <span class="value" id="summary-count">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">💰 總金額：</span>
+                    <span class="value" id="summary-total">$0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">⏳ 待處理：</span>
+                    <span class="value" id="summary-pending" style="color: var(--accent-gold);">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">✅ 已完成：</span>
+                    <span class="value" id="summary-completed" style="color: var(--primary-light);">0</span>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="search-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="搜尋訂單編號、顧客名稱...">
+                </div>
+                <select class="filter-select" id="date-filter">
+                    <option value="">全部時間</option>
+                    <option value="today">📅 今天</option>
+                    <option value="yesterday">📅 昨天</option>
+                    <option value="this-week">📅 本週</option>
+                    <option value="this-month">📅 本月</option>
+                    <option value="last-month">📅 上月</option>
+                    <option value="last-year">📅 去年</option>
+                </select>
+                <select class="filter-select" id="status-filter">
+                    <option value="">全部狀態</option>
+                    <option value="pending">🟡 待處理</option>
+                    <option value="processing">🔵 處理中</option>
+                    <option value="shipped">🟣 已出貨</option>
+                    <option value="completed">🟢 已完成</option>
+                    <option value="cancelled">🔴 已取消</option>
+                </select>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>訂單編號</th>
+                                    <th>顧客</th>
+                                    <th>金額</th>
+                                    <th>狀態</th>
+                                    <th>下單時間</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-tbody">
+                                <tr>
+                                    <td colspan="6" class="loading">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="modal-overlay" id="order-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>訂單詳情</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="order-detail">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn outline" onclick="closeModal()">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin/js/api.js"></script>
+    <script>
+        if (!checkAdminAuth()) { }
+
+        let allOrders = [];
+        let filteredOrders = [];
+
+        // 日期範圍計算
+        function getDateRange(filter) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            switch (filter) {
+                case 'today':
+                    return { start: today, end: new Date(today.getTime() + 24 * 60 * 60 * 1000) };
+                case 'yesterday':
+                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                    return { start: yesterday, end: today };
+                case 'this-week':
+                    const weekStart = new Date(today);
+                    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                    return { start: weekStart, end: new Date(today.getTime() + 24 * 60 * 60 * 1000) };
+                case 'this-month':
+                    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                    return { start: monthStart, end: new Date(today.getTime() + 24 * 60 * 60 * 1000) };
+                case 'last-month':
+                    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 1);
+                    return { start: lastMonthStart, end: lastMonthEnd };
+                case 'last-year':
+                    const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
+                    const lastYearEnd = new Date(now.getFullYear(), 0, 1);
+                    return { start: lastYearStart, end: lastYearEnd };
+                default:
+                    return null;
+            }
+        }
+
+        async function loadOrders() {
+            try {
+                const data = await AdminAPI.orders.getAll({});
+                allOrders = data.orders || [];
+                applyFilters();
+            } catch (error) {
+                console.error('載入訂單失敗:', error);
+                showToast('載入訂單失敗', 'error');
+            }
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const status = document.getElementById('status-filter').value;
+            const dateFilter = document.getElementById('date-filter').value;
+            const dateRange = getDateRange(dateFilter);
+
+            filteredOrders = allOrders.filter(order => {
+                // 搜尋篩選
+                if (search) {
+                    const orderNum = (order.order_number || '').toLowerCase();
+                    const customerName = (order.customer_name || '').toLowerCase();
+                    const customerEmail = (order.customer_email || '').toLowerCase();
+                    if (!orderNum.includes(search) && !customerName.includes(search) && !customerEmail.includes(search)) {
+                        return false;
+                    }
+                }
+
+                // 狀態篩選
+                if (status && order.status !== status) {
+                    return false;
+                }
+
+                // 日期篩選
+                if (dateRange) {
+                    const orderDate = new Date(order.created_at);
+                    if (orderDate < dateRange.start || orderDate >= dateRange.end) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            updateSummary();
+            renderOrders();
+        }
+
+        function updateSummary() {
+            const totalCount = filteredOrders.length;
+            const totalAmount = filteredOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+            const pendingCount = filteredOrders.filter(o => o.status === 'pending').length;
+            const completedCount = filteredOrders.filter(o => o.status === 'completed').length;
+
+            document.getElementById('summary-count').textContent = totalCount;
+            document.getElementById('summary-total').textContent = formatPrice(totalAmount);
+            document.getElementById('summary-pending').textContent = pendingCount;
+            document.getElementById('summary-completed').textContent = completedCount;
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('orders-tbody');
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">沒有找到訂單</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredOrders.map(order => `
+                <tr>
+                    <td><strong>${order.order_number}</strong></td>
+                    <td>
+                        <div>${order.customer_name || '訪客'}</div>
+                        <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">${order.customer_email || ''}</div>
+                    </td>
+                    <td><strong style="color: var(--accent-orange);">${formatPrice(order.total_amount)}</strong></td>
+                    <td>
+                        <select class="status-select" onchange="updateStatus(${order.id}, this.value)" style="padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: var(--white); cursor: pointer;">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>🟡 待處理</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>🔵 處理中</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>🟣 已出貨</option>
+                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>🟢 已完成</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>🔴 已取消</option>
+                        </select>
+                    </td>
+                    <td>${formatDate(order.created_at)}</td>
+                    <td>
+                        <button class="action-btn outline" onclick="viewOrder(${order.id})">
+                            <i class="fas fa-eye"></i> 查看
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateStatus(orderId, status) {
+            try {
+                await AdminAPI.orders.updateStatus(orderId, status);
+                showToast('訂單狀態已更新', 'success');
+                // 更新本地數據
+                const order = allOrders.find(o => o.id === orderId);
+                if (order) {
+                    order.status = status;
+                    applyFilters();
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+                loadOrders(); // 重新載入
+            }
+        }
+
+        async function viewOrder(orderId) {
+            const modal = document.getElementById('order-modal');
+            const detailContainer = document.getElementById('order-detail');
+
+            modal.classList.add('show');
+            detailContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+            try {
+                const { order, items } = await AdminAPI.orders.getById(orderId);
+
+                detailContainer.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="margin-bottom: 10px;">訂單編號：${order.order_number}</h4>
+                        <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                        <h5 style="margin-bottom: 10px; color: rgba(255,255,255,0.8);">收件資訊</h5>
+                        <p><strong>收件人：</strong>${order.shipping_name}</p>
+                        <p><strong>電話：</strong>${order.shipping_phone}</p>
+                        <p><strong>地址：</strong>${order.shipping_address}</p>
+                        ${order.notes ? `<p><strong>備註：</strong>${order.notes}</p>` : ''}
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                        <h5 style="margin-bottom: 10px; color: rgba(255,255,255,0.8);">商品明細</h5>
+                        ${items.map(item => `
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <span>${item.name || '商品'} x ${item.quantity}</span>
+                                <span>${formatPrice(item.unit_price * item.quantity)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="text-align: right; font-size: 1.2rem;">
+                        <strong>總金額：<span style="color: var(--accent-orange);">${formatPrice(order.total_amount)}</span></strong>
+                    </div>
+                `;
+            } catch (error) {
+                detailContainer.innerHTML = '<p style="color: var(--accent-red);">載入失敗</p>';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('order-modal').classList.remove('show');
+        }
+
+        // 搜尋和篩選事件
+        document.getElementById('search-input').addEventListener('input', debounce(applyFilters, 300));
+        document.getElementById('status-filter').addEventListener('change', applyFilters);
+        document.getElementById('date-filter').addEventListener('change', applyFilters);
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
+</body>
+
+</html>

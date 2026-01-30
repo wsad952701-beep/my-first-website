@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>購物車 | 果實搬運工</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/frontend/" class="logo">
+                <span class="logo-icon">🍇</span>
+                <span>果實搬運工</span>
+            </a>
+            <div class="search-box">
+                <input type="text" placeholder="搜尋水果、禮盒...">
+                <button type="button"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="header-actions">
+                <a href="/frontend/cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" style="display: none;">0</span>
+                </a>
+                <a href="/frontend/login.html" class="login-link">
+                    <i class="fas fa-user"></i>
+                    <span>登入</span>
+                </a>
+                <button class="logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>登出</span>
+                </button>
+            </div>
+        </div>
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="/frontend/">首頁</a>
+                <a href="/frontend/products.html?category=1">🎁 春節禮盒</a>
+                <a href="/frontend/products.html?category=2">✨ 季節限定</a>
+                <a href="/frontend/products.html?category=3">🌍 進口水果</a>
+                <a href="/frontend/products.html?category=4">🇯🇵 日本嚴選</a>
+                <a href="/frontend/products.html?category=5">🇹🇼 台灣在地</a>
+                <a href="/frontend/products.html?category=6">💰 優惠專區</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title"><i class="fas fa-shopping-cart"></i> 購物車</h1>
+        </div>
+    </div>
+
+    <!-- Cart Content -->
+    <main class="container">
+        <div class="cart-container" id="cart-container">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© 2025 果實搬運工 Fruit Porter. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/cart.js"></script>
+    <script src="/frontend/js/main.js"></script>
+    <script>
+        async function loadCart() {
+            const container = document.getElementById('cart-container');
+
+            if (!TokenManager.isLoggedIn()) {
+                container.innerHTML = `
+                    <div class="cart-empty" style="grid-column: 1 / -1;">
+                        <i class="fas fa-user-lock"></i>
+                        <h3>請先登入會員</h3>
+                        <p>登入後即可使用購物車功能</p>
+                        <a href="/frontend/login.html" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> 會員登入
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const { items, total } = await API.cart.get();
+
+                if (items.length === 0) {
+                    container.innerHTML = `
+                        <div class="cart-empty" style="grid-column: 1 / -1;">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>購物車是空的</h3>
+                            <p>快去挑選喜歡的水果吧！</p>
+                            <a href="/frontend/products.html" class="btn btn-primary">
+                                <i class="fas fa-shopping-bag"></i> 開始購物
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const shipping = total >= 799 ? 0 : 100;
+                const finalTotal = total + shipping;
+
+                container.innerHTML = `
+                    <div class="cart-items">
+                        ${items.map(item => `
+                            <div class="cart-item" data-id="${item.id}">
+                                <div class="cart-item-image">
+                                    ${item.image_url
+                        ? `<img src="${item.image_url}" alt="${item.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 font-size=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22>🍎</text></svg>'">`
+                        : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;">🍎</div>`
+                    }
+                                </div>
+                                <div class="cart-item-info">
+                                    <h4>${item.name}</h4>
+                                    <p>${formatPrice(item.price)} / 件</p>
+                                </div>
+                                <div class="quantity-control">
+                                    <button onclick="updateCartItem(${item.id}, ${item.quantity - 1})">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span>${item.quantity}</span>
+                                    <button onclick="updateCartItem(${item.id}, ${item.quantity + 1})">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="cart-item-price">${formatPrice(item.price * item.quantity)}</div>
+                                <button class="cart-item-remove" onclick="removeCartItem(${item.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="cart-summary">
+                        <h3>訂單摘要</h3>
+                        <div class="summary-row">
+                            <span>商品小計</span>
+                            <span>${formatPrice(total)}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>運費</span>
+                            <span>${shipping === 0 ? '免運費' : formatPrice(shipping)}</span>
+                        </div>
+                        ${total < 799 ? `
+                            <div class="summary-row" style="color: var(--accent-orange); font-size: 0.85rem;">
+                                <span>💡 再買 ${formatPrice(799 - total)} 即可免運</span>
+                            </div>
+                        ` : ''}
+                        <div class="summary-row total">
+                            <span>總金額</span>
+                            <span>${formatPrice(finalTotal)}</span>
+                        </div>
+                        <a href="/frontend/checkout.html" class="btn btn-primary">
+                            <i class="fas fa-credit-card"></i> 前往結帳
+                        </a>
+                        <a href="/frontend/products.html" class="btn btn-outline" style="margin-top: 10px;">
+                            <i class="fas fa-shopping-bag"></i> 繼續購物
+                        </a>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('載入購物車失敗:', error);
+                container.innerHTML = '<p style="color: #e74c3c; text-align: center;">載入失敗，請稍後再試</p>';
+            }
+        }
+
+        async function updateCartItem(itemId, quantity) {
+            if (quantity < 1) {
+                removeCartItem(itemId);
+                return;
+            }
+
+            try {
+                await API.cart.update(itemId, quantity);
+                await cart.fetch();
+                loadCart();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function removeCartItem(itemId) {
+            try {
+                await API.cart.remove(itemId);
+                await cart.fetch();
+                showToast('已從購物車移除', 'success');
+                loadCart();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCart);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的訂單 | 果實搬運工</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="/frontend/" class="logo">
+                <span class="logo-icon">🍇</span>
+                <span>果實搬運工</span>
+            </a>
+            <div class="header-actions">
+                <a href="/frontend/cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" style="display: none;">0</span>
+                </a>
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>登出</span>
+                </button>
+            </div>
+        </div>
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="/frontend/">首頁</a>
+                <a href="/frontend/products.html">全部商品</a>
+                <a href="/frontend/orders.html" class="active">我的訂單</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title"><i class="fas fa-box"></i> 我的訂單</h1>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="orders-list" id="orders-list">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© 2025 果實搬運工 Fruit Porter. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/cart.js"></script>
+    <script src="/frontend/js/main.js"></script>
+    <script>
+        async function loadOrders() {
+            const container = document.getElementById('orders-list');
+
+            if (!TokenManager.isLoggedIn()) {
+                window.location.href = '/frontend/login.html';
+                return;
+            }
+
+            try {
+                const { orders } = await API.orders.getAll();
+
+                if (orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="cart-empty">
+                            <i class="fas fa-box-open"></i>
+                            <h3>還沒有訂單</h3>
+                            <p>快去選購喜歡的水果吧！</p>
+                            <a href="/frontend/products.html" class="btn btn-primary">
+                                <i class="fas fa-shopping-bag"></i> 開始購物
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = await Promise.all(orders.map(async order => {
+                    const { items } = await API.orders.getById(order.id);
+                    return `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div>
+                                    <span class="order-number">訂單編號：${order.order_number}</span>
+                                    <span style="color: rgba(255,255,255,0.6); margin-left: 20px; font-size: 0.9rem;">
+                                        ${formatDate(order.created_at)}
+                                    </span>
+                                </div>
+                                <span class="order-status status-${order.status}">${getStatusText(order.status)}</span>
+                            </div>
+                            <div class="order-body">
+                                <div class="order-items">
+                                    ${items.map(item => `
+                                        <div class="order-item">
+                                            <div class="order-item-image">
+                                                ${item.image_url
+                            ? `<img src="${item.image_url}" alt="${item.name}" onerror="this.parentElement.innerHTML='🍎'">`
+                            : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.5rem;">🍎</div>'
+                        }
+                                            </div>
+                                            <div class="order-item-info">
+                                                <h4>${item.name}</h4>
+                                                <p>${formatPrice(item.unit_price)} x ${item.quantity}</p>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="order-footer">
+                                    <div>
+                                        <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                                            收件人：${order.shipping_name} | ${order.shipping_phone}
+                                        </div>
+                                        <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                                            地址：${order.shipping_address}
+                                        </div>
+                                    </div>
+                                    <div class="order-total">
+                                        總金額：<span>${formatPrice(order.total_amount)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })).then(cards => cards.join(''));
+            } catch (error) {
+                console.error('載入訂單失敗:', error);
+                container.innerHTML = '<p style="color: #e74c3c; text-align: center;">載入失敗，請稍後再試</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
+</body>
+
+</html>

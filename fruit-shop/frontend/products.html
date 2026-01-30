@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品列表 | 果實搬運工</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 產品列表頁專用樣式 */
+        .products-page {
+            margin-top: 130px;
+            display: flex;
+            gap: 30px;
+            padding: 40px 0;
+        }
+
+        /* 側邊欄 */
+        .products-sidebar {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .filter-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-section h3 i {
+            color: var(--primary-light);
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-list li {
+            margin-bottom: 8px;
+        }
+
+        .category-list a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s;
+        }
+
+        .category-list a:hover,
+        .category-list a.active {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .category-list .count {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .category-list a.active .count,
+        .category-list a:hover .count {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 價格篩選 */
+        .price-range {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .price-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .price-inputs input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .price-inputs span {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* 排序選項 */
+        .sort-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sort-options label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sort-options label:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sort-options input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+
+        /* 主內容 */
+        .products-main {
+            flex: 1;
+        }
+
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .products-count {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .products-count span {
+            color: var(--accent-orange);
+            font-weight: 700;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-toggle button {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+        }
+
+        .view-toggle button.active,
+        .view-toggle button:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .mobile-filter-btn {
+            display: none;
+            padding: 10px 20px;
+            background: var(--primary-color);
+            border-radius: 8px;
+            color: #fff;
+        }
+
+        /* 增強產品卡片 */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-image {
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(45, 138, 78, 0.1) 0%, rgba(244, 162, 97, 0.1) 100%);
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .product-badges {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .badge-hot {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: #fff;
+        }
+
+        .badge-seasonal {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: #fff;
+        }
+
+        .badge-sale {
+            background: linear-gradient(135deg, #ff6b35 0%, #f4a261 100%);
+            color: #fff;
+        }
+
+        .badge-featured {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb800 100%);
+            color: #333;
+            font-weight: 700;
+        }
+
+        .product-wishlist {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0;
+        }
+
+        .product-card:hover .product-wishlist {
+            opacity: 1;
+        }
+
+        .product-wishlist:hover {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .product-info {
+            padding: 20px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
+        }
+
+        .product-category {
+            font-size: 0.75rem;
+            color: var(--primary-light);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .product-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+            min-height: 48px;
+        }
+
+        .product-name a {
+            color: #fff;
+            transition: color 0.3s;
+        }
+
+        .product-name a:hover {
+            color: var(--primary-light);
+        }
+
+        .product-origin {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 12px;
+        }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .current-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent-orange);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .original-price {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: line-through;
+        }
+
+        .discount-tag {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .product-actions .btn {
+            flex: 1;
+            padding: 14px;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .product-actions .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 4px 15px rgba(45, 138, 78, 0.3);
+        }
+
+        .product-actions .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 138, 78, 0.4);
+        }
+
+        .product-actions .btn-outline {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .product-actions .btn-outline:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        /* 分頁 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 50px;
+        }
+
+        .pagination button {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s;
+        }
+
+        .pagination button:hover,
+        .pagination button.active {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        /* RWD */
+        @media (max-width: 1024px) {
+            .products-sidebar {
+                display: none;
+            }
+
+            .mobile-filter-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .products-page {
+                margin-top: 110px;
+                padding: 20px 0;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .product-image {
+                height: 160px;
+            }
+
+            .product-info {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">🍇</span>
+                <span>果實搬運工</span>
+            </a>
+            <div class="search-box">
+                <input type="text" placeholder="搜尋商品..." id="search-input">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="header-actions">
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" style="display: none;">0</span>
+                </a>
+                <a href="login.html" class="login-link">
+                    <i class="fas fa-user"></i>
+                    <span>登入</span>
+                </a>
+                <a href="orders.html" class="user-link" style="display: none;">
+                    <i class="fas fa-user-check"></i>
+                    <span class="user-name">會員</span>
+                </a>
+                <button class="logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="index.html">🏠 首頁</a>
+                <a href="products.html" class="active">🛒 全部商品</a>
+                <a href="products.html?category=1">🎁 春節禮盒</a>
+                <a href="products.html?category=2">✨ 季節限定</a>
+                <a href="products.html?category=3">🌍 進口水果</a>
+                <a href="products.html?category=4">🇯🇵 日本嚴選</a>
+                <a href="products.html?category=5">🇹🇼 台灣在地</a>
+                <a href="products.html?category=6">💰 優惠專區</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="products-page">
+            <!-- 側邊欄 -->
+            <aside class="products-sidebar">
+                <div class="filter-section">
+                    <h3><i class="fas fa-tags"></i> 商品分類</h3>
+                    <ul class="category-list" id="category-list">
+                        <li><a href="products.html" class="active">全部商品 <span class="count">12</span></a></li>
+                        <li><a href="products.html?category=1">🎁 春節禮盒 <span class="count">2</span></a></li>
+                        <li><a href="products.html?category=2">✨ 季節限定 <span class="count">2</span></a></li>
+                        <li><a href="products.html?category=3">🌍 進口水果 <span class="count">2</span></a></li>
+                        <li><a href="products.html?category=4">🇯🇵 日本嚴選 <span class="count">2</span></a></li>
+                        <li><a href="products.html?category=5">🇹🇼 台灣在地 <span class="count">2</span></a></li>
+                        <li><a href="products.html?category=6">💰 優惠專區 <span class="count">2</span></a></li>
+                    </ul>
+                </div>
+
+                <div class="filter-section">
+                    <h3><i class="fas fa-dollar-sign"></i> 價格範圍</h3>
+                    <div class="price-range">
+                        <div class="price-inputs">
+                            <input type="number" placeholder="最低" id="min-price">
+                            <span>~</span>
+                            <input type="number" placeholder="最高" id="max-price">
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="applyPriceFilter()">
+                            套用篩選
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3><i class="fas fa-sort"></i> 排序方式</h3>
+                    <div class="sort-options">
+                        <label>
+                            <input type="radio" name="sort" value="featured" checked>
+                            精選推薦
+                        </label>
+                        <label>
+                            <input type="radio" name="sort" value="price_asc">
+                            價格：低到高
+                        </label>
+                        <label>
+                            <input type="radio" name="sort" value="price_desc">
+                            價格：高到低
+                        </label>
+                        <label>
+                            <input type="radio" name="sort" value="newest">
+                            最新上架
+                        </label>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 主內容 -->
+            <div class="products-main">
+                <div class="products-header">
+                    <div class="products-count">
+                        共 <span id="total-count">0</span> 件商品
+                    </div>
+                    <button class="mobile-filter-btn">
+                        <i class="fas fa-filter"></i> 篩選
+                    </button>
+                    <div class="view-toggle">
+                        <button class="active"><i class="fas fa-th-large"></i></button>
+                        <button><i class="fas fa-list"></i></button>
+                    </div>
+                </div>
+
+                <div class="products-grid" id="products-grid">
+                    <!-- 動態載入產品 -->
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+
+                <div class="pagination" id="pagination">
+                    <!-- 動態載入分頁 -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 果實搬運工 Fruit Porter. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // 取得 URL 參數
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryId = urlParams.get('category');
+        const searchQuery = urlParams.get('search');
+
+        // 載入產品
+        async function loadProducts() {
+            try {
+                const params = {};
+                if (categoryId) params.category = categoryId;
+                if (searchQuery) {
+                    params.search = searchQuery;
+                    document.getElementById('search-input').value = searchQuery;
+                }
+
+                const data = await API.products.getAll(params);
+                console.log('Loaded products:', data.products); // Debug
+                currentProducts = data.products; // 保存產品列表供排序使用
+                renderProducts(data.products);
+                document.getElementById('total-count').textContent = data.products.length;
+
+                // 更新分類高亮
+                updateCategoryActive();
+
+                // 更新側邊欄分類數量
+                updateCategoryCounts(data.products);
+            } catch (error) {
+                console.error('載入產品失敗:', error);
+                document.getElementById('products-grid').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 4rem; color: #e74c3c; margin-bottom: 20px;"></i>
+                        <h3>載入失敗</h3>
+                        <p style="color: rgba(255,255,255,0.5);">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 根據產品名稱選擇合適的圖片
+        function getProductImage(product) {
+            // 如果產品有指定 image_url，優先使用
+            if (product.image_url && !product.image_url.includes('placeholder')) {
+                return product.image_url;
+            }
+
+            // 根據產品名稱智能匹配圖片
+            const name = product.name.toLowerCase();
+            if (name.includes('草莓')) return 'images/strawberry_seasonal_1769721085772.png';
+            if (name.includes('櫻桃')) return 'images/cherry_box_1769721098855.png';
+            if (name.includes('葡萄') || name.includes('麝香')) return 'images/grape_muscat_1769721121816.png';
+            if (name.includes('蘋果')) return 'images/apple_aomori_1769721134815.png';
+            if (name.includes('禮盒')) return 'images/gift_box_premium_1769721412356.png';
+            if (name.includes('鳳梨')) return 'images/pineapple.png';
+            if (name.includes('柑橘') || name.includes('茂谷')) return 'images/orange.png';
+            if (name.includes('芒果')) return 'images/mango.png';
+            if (name.includes('西瓜')) return 'images/watermelon.png';
+            if (name.includes('水蜜桃') || name.includes('桃')) return 'images/peach.png';
+            if (name.includes('奇異果')) return 'images/kiwi.png';
+            if (name.includes('藍莓')) return 'images/grape.png';
+            if (name.includes('香蕉')) return 'images/hero_banner_fruits_1769721071654.png';
+
+            // 預設圖片
+            return 'images/hero_banner_fruits_1769721071654.png';
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('products-grid');
+
+            if (!products || products.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                        <i class="fas fa-search" style="font-size: 4rem; color: rgba(255,255,255,0.2); margin-bottom: 20px;"></i>
+                        <h3>沒有找到商品</h3>
+                        <p style="color: rgba(255,255,255,0.5);">請嘗試其他搜尋條件</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = products.map(product => {
+                const discount = product.original_price && product.original_price > product.price;
+                const discountPercent = discount ? Math.round((1 - product.price / product.original_price) * 100) : 0;
+                const imgSrc = getProductImage(product);
+                const categoryIcons = {
+                    1: '🎁', 2: '✨', 3: '🌍', 4: '🇯🇵', 5: '🇹🇼', 6: '💰'
+                };
+                const categoryIcon = categoryIcons[product.category_id] || '🍎';
+
+                return `
+                    <div class="product-card">
+                        <a href="product-detail.html?id=${product.id}" class="product-image">
+                            <img src="${imgSrc}" alt="${product.name}" onerror="this.src='images/hero_banner_fruits_1769721071654.png'">
+                            <div class="product-badges">
+                                ${product.is_featured ? '<span class="badge badge-featured">⭐ 精選</span>' : ''}
+                                ${product.is_seasonal ? '<span class="badge badge-seasonal">🌸 季節限定</span>' : ''}
+                                ${discount ? '<span class="badge badge-sale">🔥 特價</span>' : ''}
+                            </div>
+                            <div class="product-wishlist">
+                                <i class="far fa-heart"></i>
+                            </div>
+                        </a>
+                        <div class="product-info">
+                            <div class="product-category">${categoryIcon} ${product.category_name || '水果'}</div>
+                            <h3 class="product-name">
+                                <a href="product-detail.html?id=${product.id}">${product.name}</a>
+                            </h3>
+                            <p class="product-origin" style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 10px;">
+                                ${product.description ? product.description.substring(0, 30) + '...' : '新鮮直送'}
+                            </p>
+                            <div class="product-price">
+                                <span class="current-price">$${product.price.toLocaleString()}</span>
+                                ${discount ? `<span class="original-price">$${product.original_price.toLocaleString()}</span>` : ''}
+                                ${discount ? `<span class="discount-tag">-${discountPercent}%</span>` : ''}
+                            </div>
+                            <div class="product-actions">
+                                <button class="btn btn-primary" onclick="event.preventDefault(); addToCart(${product.id})" ${product.stock <= 0 ? 'disabled' : ''}>
+                                    <i class="fas fa-cart-plus"></i> ${product.stock > 0 ? '加入購物車' : '已售完'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCategoryCounts(products) {
+            // 計算每個分類的產品數量
+            const counts = { all: products.length };
+            products.forEach(p => {
+                counts[p.category_id] = (counts[p.category_id] || 0) + 1;
+            });
+
+            // 更新側邊欄顯示
+            const categoryList = document.getElementById('category-list');
+            if (categoryList) {
+                const links = categoryList.querySelectorAll('a');
+                links.forEach(link => {
+                    const countSpan = link.querySelector('.count');
+                    if (countSpan) {
+                        const href = link.getAttribute('href');
+                        if (href === 'products.html') {
+                            countSpan.textContent = counts.all || 0;
+                        } else {
+                            const match = href.match(/category=(\d+)/);
+                            if (match) {
+                                countSpan.textContent = counts[match[1]] || 0;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateCategoryActive() {
+            const links = document.querySelectorAll('.category-list a');
+            links.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+
+                if (!categoryId && href === 'products.html') {
+                    link.classList.add('active');
+                } else if (categoryId && href.includes(`category=${categoryId}`)) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        function applyPriceFilter() {
+            const minPrice = document.getElementById('min-price').value;
+            const maxPrice = document.getElementById('max-price').value;
+
+            let url = 'products.html?';
+            if (categoryId) url += `category=${categoryId}&`;
+            if (minPrice) url += `min_price=${minPrice}&`;
+            if (maxPrice) url += `max_price=${maxPrice}&`;
+
+            window.location.href = url.slice(0, -1);
+        }
+
+        // 排序變更
+        document.querySelectorAll('input[name="sort"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                sortProducts(e.target.value);
+            });
+        });
+
+        // 排序產品
+        let currentProducts = [];
+
+        function sortProducts(sortType) {
+            if (currentProducts.length === 0) return;
+
+            let sorted = [...currentProducts];
+
+            switch (sortType) {
+                case 'price_asc':
+                    sorted.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price_desc':
+                    sorted.sort((a, b) => b.price - a.price);
+                    break;
+                case 'newest':
+                    sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    break;
+                case 'featured':
+                default:
+                    sorted.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+                    break;
+            }
+
+            renderProducts(sorted);
+        }
+
+        // 初始載入
+        loadProducts();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>後台登入 | 果實搬運工</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+
+<body>
+    <main class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">🍇</div>
+                <h1>果實搬運工</h1>
+                <p>後台管理系統</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>管理員帳號</label>
+                    <input type="text" id="email" placeholder="請輸入 Email" required>
+                </div>
+                <div class="form-group">
+                    <label>密碼</label>
+                    <input type="password" id="password" placeholder="請輸入密碼" required>
+                </div>
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> 登入後台
+                </button>
+            </form>
+            <div style="text-align: center; margin-top: 20px; color: rgba(255,255,255,0.5); font-size: 0.85rem;">
+                <p>預設帳號: admin@fruitporter.com</p>
+                <p>預設密碼: admin123</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="/admin/js/api.js"></script>
+    <script>
+        // 如果已登入且為管理員，跳轉到儀表板
+        if (TokenManager.isLoggedIn() && TokenManager.isAdmin()) {
+            window.location.href = '/admin/dashboard.html';
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            try {
+                const result = await AdminAPI.auth.login(email, password);
+
+                if (!result.user.is_admin) {
+                    showToast('此帳號沒有管理員權限', 'error');
+                    TokenManager.remove();
+                    TokenManager.removeUser();
+                    return;
+                }
+
+                showToast('登入成功！', 'success');
+                setTimeout(() => {
+                    window.location.href = '/admin/dashboard.html';
+                }, 1000);
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,70 @@
+# PFZ System Docker Compose
+# 潛在漁場預測系統
+
+version: '3.8'
+
+services:
+  # PFZ 主服務
+  pfz:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pfz-system
+    environment:
+      - PFZ_ENV=production
+      - PFZ_LOG_LEVEL=INFO
+    env_file:
+      - .env
+    volumes:
+      - pfz-cache:/app/cache
+    restart: unless-stopped
+    networks:
+      - pfz-network
+    # 如果運行 API 伺服器
+    # ports:
+    #   - "8000:8000"
+    # command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  # 可選: Redis 快取
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: pfz-redis
+  #   volumes:
+  #     - redis-data:/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - pfz-network
+
+  # 可選: 定時任務 (每日報告)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pfz-scheduler
+    environment:
+      - PFZ_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - pfz-cache:/app/cache
+    restart: unless-stopped
+    networks:
+      - pfz-network
+    entrypoint: >
+      sh -c "
+        while true; do
+          echo '[$(date)] Running daily PFZ report...';
+          python main.py pfz --lat 22.5 --lon 121.0 --species yellowfin_tuna;
+          sleep 86400;
+        done
+      "
+
+volumes:
+  pfz-cache:
+    driver: local
+  # redis-data:
+  #   driver: local
+
+networks:
+  pfz-network:
+    driver: bridge

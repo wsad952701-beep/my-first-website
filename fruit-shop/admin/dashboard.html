@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儀表板 | 果實搬運工 後台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+    <style>
+        .period-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .period-tab {
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+        }
+
+        .period-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .period-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-light);
+        }
+
+        .financial-summary {
+            background: linear-gradient(135deg, rgba(45, 138, 78, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .financial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .financial-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .financial-period {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .financial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .financial-item {
+            text-align: center;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-sm);
+        }
+
+        .financial-item .label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 8px;
+        }
+
+        .financial-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .financial-item .value.revenue {
+            color: var(--accent-orange);
+        }
+
+        .financial-item .value.orders {
+            color: var(--accent-blue);
+        }
+
+        .financial-item .value.pending {
+            color: var(--accent-gold);
+        }
+
+        .financial-item .value.completed {
+            color: var(--primary-light);
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .quick-stat {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quick-stat .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .quick-stat .icon.blue {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .quick-stat .icon.green {
+            background: rgba(45, 138, 78, 0.2);
+            color: var(--primary-light);
+        }
+
+        .quick-stat .info .label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .quick-stat .info .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span>🍇</span>
+                    <span>果實搬運工</span>
+                </div>
+                <div class="sidebar-subtitle">後台管理系統</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">主要功能</div>
+                    <a href="/admin/dashboard.html" class="nav-item active">
+                        <i class="fas fa-chart-line"></i>
+                        <span>儀表板</span>
+                    </a>
+                    <a href="/admin/orders.html" class="nav-item">
+                        <i class="fas fa-box"></i>
+                        <span>訂單管理</span>
+                        <span class="badge" id="pending-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="/admin/products.html" class="nav-item">
+                        <i class="fas fa-apple-alt"></i>
+                        <span>商品管理</span>
+                    </a>
+                    <a href="/admin/members.html" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>會員管理</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">快捷操作</div>
+                    <a href="/frontend/" class="nav-item" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>前往前台</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title">📊 儀表板</h1>
+                <div class="top-bar-actions">
+                    <div class="admin-profile">
+                        <div class="admin-avatar">👤</div>
+                        <div class="admin-info">
+                            <span class="admin-name" id="admin-name">管理員</span>
+                            <span class="admin-role">系統管理員</span>
+                        </div>
+                    </div>
+                    <button class="logout-btn" title="登出">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Period Tabs -->
+            <div class="period-tabs">
+                <button class="period-tab active" data-period="today">📅 今天</button>
+                <button class="period-tab" data-period="yesterday">📅 昨天</button>
+                <button class="period-tab" data-period="this-week">📅 本週</button>
+                <button class="period-tab" data-period="this-month">📅 本月</button>
+                <button class="period-tab" data-period="last-month">📅 上月</button>
+                <button class="period-tab" data-period="all">📅 全部</button>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="financial-summary">
+                <div class="financial-header">
+                    <div class="financial-title">💰 財務統計概覽</div>
+                    <div class="financial-period" id="period-label">今天</div>
+                </div>
+                <div class="financial-grid" id="financial-grid">
+                    <div class="financial-item">
+                        <div class="label">📊 總營收</div>
+                        <div class="value revenue" id="period-revenue">$0</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="label">📦 訂單數量</div>
+                        <div class="value orders" id="period-orders">0</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="label">⏳ 待處理訂單</div>
+                        <div class="value pending" id="period-pending">0</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="label">✅ 已完成訂單</div>
+                        <div class="value completed" id="period-completed">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid" id="stats-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Recent Orders -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-clock"></i> 最近訂單</h2>
+                        <a href="/admin/orders.html" class="action-btn outline">查看全部</a>
+                    </div>
+                    <div class="card-body" id="recent-orders">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats & Top Products -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-fire"></i> 熱銷商品</h2>
+                    </div>
+                    <div class="card-body" id="top-products">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/admin/js/api.js"></script>
+    <script>
+        // 檢查權限
+        if (!checkAdminAuth()) {
+            // Will redirect
+        }
+
+        let allOrders = [];
+        let dashboardData = null;
+        let currentPeriod = 'today';
+
+        const periodLabels = {
+            'today': '今天',
+            'yesterday': '昨天',
+            'this-week': '本週',
+            'this-month': '本月',
+            'last-month': '上月',
+            'all': '全部時間'
+        };
+
+        // 日期範圍計算
+        function getDateRange(filter) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            switch (filter) {
+                case 'today':
+                    return { start: today, end: new Date(today.getTime() + 24 * 60 * 60 * 1000) };
+                case 'yesterday':
+                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                    return { start: yesterday, end: today };
+                case 'this-week':
+                    const weekStart = new Date(today);
+                    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                    return { start: weekStart, end: new Date(today.getTime() + 24 * 60 * 60 * 1000) };
+                case 'this-month':
+                    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                    return { start: monthStart, end: new Date(today.getTime() + 24 * 60 * 60 * 1000) };
+                case 'last-month':
+                    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 1);
+                    return { start: lastMonthStart, end: lastMonthEnd };
+                default:
+                    return null;
+            }
+        }
+
+        function updatePeriodStats(period) {
+            currentPeriod = period;
+            const dateRange = getDateRange(period);
+
+            document.getElementById('period-label').textContent = periodLabels[period];
+
+            // 更新按鈕狀態
+            document.querySelectorAll('.period-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.period === period);
+            });
+
+            // 過濾訂單
+            let filteredOrders = allOrders;
+            if (dateRange) {
+                filteredOrders = allOrders.filter(order => {
+                    const orderDate = new Date(order.created_at);
+                    return orderDate >= dateRange.start && orderDate < dateRange.end;
+                });
+            }
+
+            // 計算統計
+            const revenue = filteredOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+            const orderCount = filteredOrders.length;
+            const pendingCount = filteredOrders.filter(o => o.status === 'pending').length;
+            const completedCount = filteredOrders.filter(o => o.status === 'completed').length;
+
+            // 更新顯示
+            document.getElementById('period-revenue').textContent = formatPrice(revenue);
+            document.getElementById('period-orders').textContent = orderCount;
+            document.getElementById('period-pending').textContent = pendingCount;
+            document.getElementById('period-completed').textContent = completedCount;
+        }
+
+        // 載入儀表板數據
+        async function loadDashboard() {
+            try {
+                const data = await AdminAPI.dashboard.get();
+                dashboardData = data;
+
+                // 載入所有訂單用於統計
+                try {
+                    const ordersData = await AdminAPI.orders.getAll({});
+                    allOrders = ordersData.orders || [];
+                } catch (e) {
+                    allOrders = data.recentOrders || [];
+                }
+
+                // 初始化時間區間統計
+                updatePeriodStats('today');
+
+                // 更新統計卡片
+                document.getElementById('stats-grid').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="stat-info">
+                            <h3>累計總營收</h3>
+                            <div class="stat-value">${formatPrice(data.total.revenue || 0)}</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange"><i class="fas fa-shopping-bag"></i></div>
+                        <div class="stat-info">
+                            <h3>總訂單數</h3>
+                            <div class="stat-value">${data.total.orders || 0}</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-box"></i></div>
+                        <div class="stat-info">
+                            <h3>商品數量</h3>
+                            <div class="stat-value">${data.total.products || 0}</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3>總會員數</h3>
+                            <div class="stat-value">${data.total.members || 0}</div>
+                        </div>
+                    </div>
+                `;
+
+                // 更新待處理訂單徽章
+                const pendingBadge = document.getElementById('pending-badge');
+                if (data.total.pending_orders > 0) {
+                    pendingBadge.textContent = data.total.pending_orders;
+                    pendingBadge.style.display = 'block';
+                }
+
+                // 更新最近訂單
+                if (data.recentOrders.length === 0) {
+                    document.getElementById('recent-orders').innerHTML = '<p style="color: rgba(255,255,255,0.6); text-align: center;">暫無訂單</p>';
+                } else {
+                    document.getElementById('recent-orders').innerHTML = data.recentOrders.slice(0, 5).map(order => `
+                        <div class="order-mini">
+                            <div class="order-mini-info">
+                                <h4>${order.order_number}</h4>
+                                <p>${order.customer_name || '訪客'} • ${formatDate(order.created_at)}</p>
+                            </div>
+                            <div>
+                                <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
+                            </div>
+                            <div class="order-mini-amount">${formatPrice(order.total_amount)}</div>
+                        </div>
+                    `).join('');
+                }
+
+                // 更新熱銷商品
+                if (data.topProducts.length === 0) {
+                    document.getElementById('top-products').innerHTML = '<p style="color: rgba(255,255,255,0.6); text-align: center;">暫無數據</p>';
+                } else {
+                    document.getElementById('top-products').innerHTML = data.topProducts.map((product, index) => `
+                        <div class="order-mini">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 30px; height: 30px; border-radius: 50%; background: ${index < 3 ? 'var(--accent-orange)' : 'rgba(255,255,255,0.1)'}; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
+                                    ${index + 1}
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 0.95rem;">${product.name}</h4>
+                                    <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">銷售 ${product.total_sold} 件</p>
+                                </div>
+                            </div>
+                            <div class="order-mini-amount">${formatPrice(product.price)}</div>
+                        </div>
+                    `).join('');
+                }
+
+                // 更新管理員名稱
+                const user = TokenManager.getUser();
+                if (user) {
+                    document.getElementById('admin-name').textContent = user.name;
+                }
+
+            } catch (error) {
+                console.error('載入儀表板失敗:', error);
+                showToast('載入數據失敗', 'error');
+            }
+        }
+
+        // 時間區間切換事件
+        document.querySelectorAll('.period-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                updatePeriodStats(btn.dataset.period);
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+
+</html>

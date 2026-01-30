@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品管理 | 果實搬運工 後台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span>🍇</span>
+                    <span>果實搬運工</span>
+                </div>
+                <div class="sidebar-subtitle">後台管理系統</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">主要功能</div>
+                    <a href="/admin/dashboard.html" class="nav-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>儀表板</span>
+                    </a>
+                    <a href="/admin/orders.html" class="nav-item">
+                        <i class="fas fa-box"></i>
+                        <span>訂單管理</span>
+                    </a>
+                    <a href="/admin/products.html" class="nav-item active">
+                        <i class="fas fa-apple-alt"></i>
+                        <span>商品管理</span>
+                    </a>
+                    <a href="/admin/members.html" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>會員管理</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">快捷操作</div>
+                    <a href="/frontend/" class="nav-item" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>前往前台</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title">🍎 商品管理</h1>
+                <div class="top-bar-actions">
+                    <button class="action-btn primary" onclick="openAddModal()">
+                        <i class="fas fa-plus"></i> 新增商品
+                    </button>
+                    <button class="logout-btn" title="登出">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Products Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>商品</th>
+                                    <th>分類</th>
+                                    <th>價格</th>
+                                    <th>庫存</th>
+                                    <th>標籤</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-tbody">
+                                <tr>
+                                    <td colspan="6" class="loading">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">新增商品</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <input type="hidden" id="product-id">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>商品名稱 *</label>
+                            <input type="text" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>分類</label>
+                            <select id="category_id">
+                                <option value="">選擇分類</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>商品描述</label>
+                        <textarea id="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>售價 *</label>
+                            <input type="number" id="price" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>原價</label>
+                            <input type="number" id="original_price" min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>庫存數量</label>
+                            <input type="number" id="stock" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>商品圖片</label>
+                            <div id="image-upload-area"
+                                style="border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s;"
+                                onclick="document.getElementById('image-file').click()">
+                                <input type="file" id="image-file" accept="image/*" style="display: none;"
+                                    onchange="handleImageUpload(this)">
+                                <div id="upload-placeholder">
+                                    <i class="fas fa-cloud-upload-alt"
+                                        style="font-size: 2rem; color: rgba(255,255,255,0.5); margin-bottom: 10px;"></i>
+                                    <p style="margin: 0; color: rgba(255,255,255,0.7);">
+                                        點擊上傳圖片<br><small>或拖放圖片到此處</small></p>
+                                </div>
+                                <div id="image-preview" style="display: none;">
+                                    <img id="preview-img" src=""
+                                        style="max-width: 100%; max-height: 150px; border-radius: 8px;">
+                                    <p id="preview-name"
+                                        style="margin: 10px 0 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);"></p>
+                                </div>
+                            </div>
+                            <input type="hidden" id="image_url">
+                            <div style="margin-top: 10px;">
+                                <small style="color: rgba(255,255,255,0.5);">或輸入圖片網址：</small>
+                                <input type="text" id="image_url_manual" placeholder="https://..."
+                                    onchange="document.getElementById('image_url').value = this.value"
+                                    style="margin-top: 5px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>商品標籤</label>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="is_featured">
+                                <span>🔥 熱門精選</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="is_seasonal">
+                                <span>🌸 季節限定</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn outline" onclick="closeModal()">取消</button>
+                <button class="action-btn primary" onclick="saveProduct()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin/js/api.js"></script>
+    <script>
+        if (!checkAdminAuth()) { }
+
+        let products = [];
+        let categories = [];
+        let editingId = null;
+
+        async function loadCategories() {
+            try {
+                const data = await AdminAPI.categories.getAll();
+                categories = data.categories;
+
+                const select = document.getElementById('category_id');
+                select.innerHTML = '<option value="">選擇分類</option>' +
+                    categories.map(cat => `<option value="${cat.id}">${cat.icon} ${cat.name}</option>`).join('');
+            } catch (error) {
+                console.error('載入分類失敗:', error);
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const data = await AdminAPI.products.getAll();
+                products = data.products;
+                renderProducts();
+            } catch (error) {
+                console.error('載入商品失敗:', error);
+                showToast('載入商品失敗', 'error');
+            }
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('products-tbody');
+
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">沒有商品</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td>
+                        <div class="product-row">
+                            <div class="product-thumb">
+                                ${product.image_url
+                    ? `<img src="${product.image_url}" alt="${product.name}" onerror="this.parentElement.innerHTML='🍎'">`
+                    : '🍎'
+                }
+                            </div>
+                            <div>
+                                <strong>${product.name}</strong>
+                                <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    ${product.description || ''}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${product.category_name || '-'}</td>
+                    <td>
+                        <div><strong style="color: var(--accent-orange);">${formatPrice(product.price)}</strong></div>
+                        ${product.original_price > product.price
+                    ? `<div style="font-size: 0.85rem; color: rgba(255,255,255,0.5); text-decoration: line-through;">${formatPrice(product.original_price)}</div>`
+                    : ''
+                }
+                    </td>
+                    <td>
+                        <span style="color: ${product.stock <= 10 ? 'var(--accent-red)' : 'var(--primary-light)'};">
+                            ${product.stock}
+                        </span>
+                    </td>
+                    <td>
+                        ${product.is_featured ? '<span class="status-badge status-completed">熱門</span>' : ''}
+                        ${product.is_seasonal ? '<span class="status-badge status-processing">季節</span>' : ''}
+                    </td>
+                    <td>
+                        <button class="action-btn outline" onclick="editProduct(${product.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn danger" onclick="deleteProduct(${product.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddModal() {
+            editingId = null;
+            document.getElementById('modal-title').textContent = '新增商品';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-modal').classList.add('show');
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            editingId = id;
+            document.getElementById('modal-title').textContent = '編輯商品';
+            document.getElementById('product-id').value = id;
+            document.getElementById('name').value = product.name;
+            document.getElementById('category_id').value = product.category_id || '';
+            document.getElementById('description').value = product.description || '';
+            document.getElementById('price').value = product.price;
+            document.getElementById('original_price').value = product.original_price || '';
+            document.getElementById('stock').value = product.stock || 0;
+            document.getElementById('image_url').value = product.image_url || '';
+            document.getElementById('is_featured').checked = product.is_featured;
+            document.getElementById('is_seasonal').checked = product.is_seasonal;
+
+            document.getElementById('product-modal').classList.add('show');
+        }
+
+        async function saveProduct() {
+            const productData = {
+                name: document.getElementById('name').value.trim(),
+                category_id: document.getElementById('category_id').value || null,
+                description: document.getElementById('description').value.trim(),
+                price: parseFloat(document.getElementById('price').value) || 0,
+                original_price: parseFloat(document.getElementById('original_price').value) || null,
+                stock: parseInt(document.getElementById('stock').value) || 0,
+                image_url: document.getElementById('image_url').value.trim() || null,
+                is_featured: document.getElementById('is_featured').checked,
+                is_seasonal: document.getElementById('is_seasonal').checked
+            };
+
+            if (!productData.name || !productData.price) {
+                showToast('請填寫商品名稱和價格', 'error');
+                return;
+            }
+
+            try {
+                if (editingId) {
+                    await AdminAPI.products.update(editingId, productData);
+                    showToast('商品已更新', 'success');
+                } else {
+                    await AdminAPI.products.create(productData);
+                    showToast('商品已新增', 'success');
+                }
+
+                closeModal();
+                loadProducts();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('確定要刪除此商品嗎？')) return;
+
+            try {
+                await AdminAPI.products.delete(id);
+                showToast('商品已刪除', 'success');
+                loadProducts();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('product-modal').classList.remove('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadProducts();
+
+            // 拖放上傳
+            const uploadArea = document.getElementById('image-upload-area');
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#4caf50';
+                uploadArea.style.background = 'rgba(76, 175, 80, 0.1)';
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = 'rgba(255,255,255,0.3)';
+                uploadArea.style.background = 'transparent';
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(255,255,255,0.3)';
+                uploadArea.style.background = 'transparent';
+                if (e.dataTransfer.files.length > 0) {
+                    document.getElementById('image-file').files = e.dataTransfer.files;
+                    handleImageUpload(document.getElementById('image-file'));
+                }
+            });
+        });
+
+        // 圖片上傳處理
+        async function handleImageUpload(input) {
+            if (!input.files || !input.files[0]) return;
+
+            const file = input.files[0];
+            if (!file.type.startsWith('image/')) {
+                showToast('請選擇圖片檔案', 'error');
+                return;
+            }
+
+            // 顯示預覽
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('upload-placeholder').style.display = 'none';
+                document.getElementById('image-preview').style.display = 'block';
+                document.getElementById('preview-img').src = e.target.result;
+                document.getElementById('preview-name').textContent = file.name;
+            };
+            reader.readAsDataURL(file);
+
+            // 上傳到伺服器
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${TokenManager.get()}`
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.url) {
+                    document.getElementById('image_url').value = data.url;
+                    showToast('圖片上傳成功', 'success');
+                } else {
+                    throw new Error(data.error || '上傳失敗');
+                }
+            } catch (error) {
+                showToast('圖片上傳失敗: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>
