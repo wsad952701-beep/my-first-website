@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: fruit-shop
+    runtime: node
+    rootDir: fruit-shop
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
