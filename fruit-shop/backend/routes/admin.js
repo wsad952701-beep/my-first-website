@@ -184,20 +184,40 @@ router.get('/orders/:id', (req, res) => {
 // 更新訂單狀態
 router.put('/orders/:id/status', (req, res) => {
     try {
-        const { status } = req.body;
+        const { status, cancel_reason, admin_note } = req.body;
         const validStatuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
 
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ error: '無效的訂單狀態' });
         }
 
-        // 先確認訂單存在
-        const order = db.prepare('SELECT id FROM orders WHERE id = ?').get(req.params.id);
+        // 先確認訂單存在並取得訂單資料
+        const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(req.params.id);
         if (!order) {
             return res.status(404).json({ error: '訂單不存在' });
         }
 
-        db.prepare('UPDATE orders SET status = ? WHERE id = ?').run(status, req.params.id);
+        // 如果是取消訂單，需要處理退款和庫存
+        if (status === 'cancelled' && order.status !== 'cancelled') {
+            // 取得訂單項目
+            const orderItems = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(order.id);
+
+            // 恢復庫存
+            orderItems.forEach(item => {
+                db.prepare('UPDATE products SET stock = stock + ? WHERE id = ?').run(item.quantity, item.product_id);
+            });
+
+            // 退還會員額度
+            db.prepare('UPDATE users SET credit = credit + ? WHERE id = ?').run(order.total_amount, order.user_id);
+        }
+
+        // 更新訂單狀態
+        if (status === 'cancelled') {
+            db.prepare('UPDATE orders SET status = ?, cancel_reason = ?, admin_note = ? WHERE id = ?')
+                .run(status, cancel_reason || null, admin_note || null, req.params.id);
+        } else {
+            db.prepare('UPDATE orders SET status = ? WHERE id = ?').run(status, req.params.id);
+        }
 
         res.json({ message: '訂單狀態已更新' });
     } catch (error) {

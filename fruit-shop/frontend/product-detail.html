@@ -570,8 +570,8 @@
                         <button class="btn btn-buy-now" onclick="buyNow()">
                             <i class="fas fa-bolt"></i> 立即購買
                         </button>
-                        <button class="btn btn-wishlist">
-                            <i class="far fa-heart"></i>
+                        <button class="btn btn-wishlist" id="wishlist-btn" onclick="toggleWishlist()">
+                            <i class="far fa-heart" id="wishlist-icon"></i>
                         </button>
                     </div>
 
@@ -654,28 +654,59 @@
     <script src="js/cart.js"></script>
     <script src="js/main.js"></script>
     <script>
-        // 產品圖片對照表
+        // 產品圖片對照表 - 根據產品名稱動態匹配
         const productImages = {
-            1: 'images/hero_banner_fruits_1769721071654.png',
-            2: 'images/gift_box_premium_1769721412356.png',
-            3: 'images/strawberry_seasonal_1769721085772.png',
-            4: 'images/apple_aomori_1769721134815.png',
-            5: 'images/cherry_box_1769721098855.png',
-            6: 'images/grape_muscat_1769721121816.png',
-            7: 'images/apple_aomori_1769721134815.png',
-            8: 'images/grape_muscat_1769721121816.png',
-            9: 'images/hero_banner_fruits_1769721071654.png',
-            10: 'images/strawberry_seasonal_1769721085772.png',
-            11: 'images/gift_box_premium_1769721412356.png',
-            12: 'images/hero_banner_fruits_1769721071654.png',
-            // 新增產品
-            13: 'images/grape_muscat_1769721121816.png',  // 紐西蘭奇異果
-            14: 'images/strawberry_seasonal_1769721085772.png',  // 日本水蜜桃
-            15: 'images/apple_aomori_1769721134815.png',  // 高雄蜜棗
-            16: 'images/hero_banner_fruits_1769721071654.png',  // 泰國榴槤
-            17: 'images/grape_muscat_1769721121816.png',  // 台灣芭樂
-            18: 'images/strawberry_seasonal_1769721085772.png'  // 日本水梨
+            // 禮盒類
+            1: 'images/gift_box_newyear_1769844937612.png',        // 新年豪華禮盒
+            2: 'images/gift_box_classic_1769844951179.png',        // 經典水果禮盒
+            // 日本草莓
+            3: 'images/strawberry_hakata_1769844965546.png',       // 博多甘王草莓
+            // 蘋果
+            4: 'images/apple_aomori_1769845034559.png',            // 青森蜜蘋果
+            // 櫻桃
+            5: 'images/cherry_jumbo_1769845006620.png',            // 智利巨無霸櫻桃
+            // 麝香葡萄
+            6: 'images/grape_muscat_1769845047647.png',            // 日本麝香葡萄
+            // 茂谷柑
+            7: 'images/tangerine_maogu_1769844979524.png',         // 台灣茂谷柑
+            // 綠葡萄
+            8: 'images/grape_green_1769845019750.png',             // 綠葡萄
+            // 芒果
+            9: 'images/mango_aiwen_1769845089844.png',             // 愛文芒果
+            // 鳳梨
+            10: 'images/pineapple_dashu_1769845077278.png',        // 大樹鳳梨
+            // 綜合禮盒
+            11: 'images/fruit_mix_box_1769845101821.png',          // 綜合水果禮盒
+            // 香蕉
+            12: 'images/banana_taiwan_1769845115102.png',          // 台灣香蕉
         };
+
+        // 動態匹配圖片函數
+        function getProductImageByName(product) {
+            const name = product.name.toLowerCase();
+            // 按關鍵詞匹配
+            if (name.includes('榴槤') || name.includes('榴蓮')) return 'images/durian_premium_1769845199680.png';
+            if (name.includes('火龍果')) return 'images/dragonfruit_red_1769845145180.png';
+            if (name.includes('水蜜桃') || name.includes('白桃')) return 'images/peach_japan_1769845159395.png';
+            if (name.includes('奇異果') || name.includes('黃金')) return 'images/kiwi_gold_1769845173011.png';
+            if (name.includes('木瓜')) return 'images/papaya_taiwan_1769845185740.png';
+            if (name.includes('草莓')) return 'images/strawberry_hakata_1769844965546.png';
+            if (name.includes('櫻桃')) return 'images/cherry_jumbo_1769845006620.png';
+            if (name.includes('葡萄') || name.includes('麝香')) return 'images/grape_muscat_1769845047647.png';
+            if (name.includes('蘋果')) return 'images/apple_aomori_1769845034559.png';
+            if (name.includes('新年') || name.includes('禮盒')) return 'images/gift_box_newyear_1769844937612.png';
+            if (name.includes('經典')) return 'images/gift_box_classic_1769844951179.png';
+            if (name.includes('鳳梨')) return 'images/pineapple_dashu_1769845077278.png';
+            if (name.includes('茂谷') || name.includes('柑')) return 'images/tangerine_maogu_1769844979524.png';
+            if (name.includes('芒果')) return 'images/mango_aiwen_1769845089844.png';
+            if (name.includes('綜合') || name.includes('水果盒')) return 'images/fruit_mix_box_1769845101821.png';
+            if (name.includes('香蕉')) return 'images/banana_taiwan_1769845115102.png';
+            if (name.includes('綠葡萄') || name.includes('無籽')) return 'images/grape_green_1769845019750.png';
+            // 使用ID映射
+            if (productImages[product.id]) return productImages[product.id];
+            // 預設
+            return 'images/hero_banner_fruits_1769721071654.png';
+        }
 
         let currentProduct = null;
 
@@ -704,8 +735,8 @@
         function renderProduct(product) {
             document.title = `${product.name} | 果實搬運工`;
 
-            // 圖片
-            const imgSrc = productImages[product.id] || 'images/hero_banner_fruits_1769721071654.png';
+            // 圖片 - 使用動態匹配函數
+            const imgSrc = getProductImageByName(product);
             document.getElementById('main-product-image').src = imgSrc;
 
             // 標籤
@@ -747,6 +778,9 @@
 
             // 初始化小計顯示
             updateTotalPrice(1);
+
+            // 檢查收藏狀態
+            checkFavoriteStatus();
         }
 
         async function loadRelatedProducts() {
@@ -755,7 +789,7 @@
                 const related = data.products.filter(p => p.id != productId).slice(0, 4);
 
                 document.getElementById('related-products').innerHTML = related.map(product => {
-                    const imgSrc = productImages[product.id] || 'images/hero_banner_fruits_1769721071654.png';
+                    const imgSrc = getProductImageByName(product);
                     return `
                         <div class="product-card">
                             <a href="product-detail.html?id=${product.id}" class="product-image">
@@ -889,6 +923,61 @@
 
         // 初始載入
         loadProduct();
+
+        // 收藏功能
+        async function toggleWishlist() {
+            if (!currentProduct) return;
+
+            if (!TokenManager.isLoggedIn()) {
+                showToast('請先登入才能收藏', 'error');
+                setTimeout(() => window.location.href = 'login.html', 1500);
+                return;
+            }
+
+            try {
+                const result = await API.favorites.toggle(currentProduct.id);
+                const icon = document.getElementById('wishlist-icon');
+                const btn = document.getElementById('wishlist-btn');
+
+                if (result.isFavorite) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    btn.style.background = 'rgba(231, 76, 60, 0.2)';
+                    btn.style.borderColor = '#e74c3c';
+                    icon.style.color = '#e74c3c';
+                    showToast('已加入收藏', 'success');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    btn.style.background = '';
+                    btn.style.borderColor = '';
+                    icon.style.color = '';
+                    showToast('已取消收藏', 'success');
+                }
+            } catch (error) {
+                showToast('操作失敗：' + error.message, 'error');
+            }
+        }
+
+        // 檢查是否已收藏
+        async function checkFavoriteStatus() {
+            if (!currentProduct || !TokenManager.isLoggedIn()) return;
+
+            try {
+                const result = await API.favorites.check(currentProduct.id);
+                if (result.isFavorite) {
+                    const icon = document.getElementById('wishlist-icon');
+                    const btn = document.getElementById('wishlist-btn');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    btn.style.background = 'rgba(231, 76, 60, 0.2)';
+                    btn.style.borderColor = '#e74c3c';
+                    icon.style.color = '#e74c3c';
+                }
+            } catch (error) {
+                console.log('檢查收藏狀態失敗:', error);
+            }
+        }
     </script>
 </body>
 

@@ -16,7 +16,8 @@ router.get('/categories', (req, res) => {
 // 取得產品列表
 router.get('/', (req, res) => {
     try {
-        const { category_id, featured, seasonal, search, limit = 50, offset = 0 } = req.query;
+        const { category_id, category, featured, seasonal, search, limit = 50, offset = 0 } = req.query;
+        const catId = category_id || category; // 支援兩種參數名稱
 
         let sql = `
             SELECT p.*, c.name as category_name 
@@ -26,9 +27,9 @@ router.get('/', (req, res) => {
         `;
         const params = [];
 
-        if (category_id) {
+        if (catId) {
             sql += ' AND p.category_id = ?';
-            params.push(category_id);
+            params.push(catId);
         }
 
         if (featured === '1') {

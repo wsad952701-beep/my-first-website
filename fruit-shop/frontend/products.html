@@ -10,6 +10,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <script src="js/theme.js"></script>
     <style>
         /* 產品列表頁專用樣式 */
         .products-page {
@@ -196,6 +198,35 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 25px;
+        }
+
+        /* 列表視圖樣式 */
+        .products-grid.list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .products-grid.list-view .product-card {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .products-grid.list-view .product-image {
+            width: 200px;
+            min-width: 200px;
+            height: 150px;
+        }
+
+        .products-grid.list-view .product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .products-grid.list-view .product-actions {
+            margin-top: auto;
         }
 
         .product-card {
@@ -495,10 +526,9 @@
                 <a href="products.html" class="active">🛒 全部商品</a>
                 <a href="products.html?category=1">🎁 春節禮盒</a>
                 <a href="products.html?category=2">✨ 季節限定</a>
-                <a href="products.html?category=3">🌍 進口水果</a>
-                <a href="products.html?category=4">🇯🇵 日本嚴選</a>
-                <a href="products.html?category=5">🇹🇼 台灣在地</a>
-                <a href="products.html?category=6">💰 優惠專區</a>
+                <a href="favorites.html">❤️ 我的最愛</a>
+                <a href="orders.html">📦 我的訂單</a>
+                <a href="history.html">📊 歷史購買</a>
             </div>
         </nav>
     </header>
@@ -566,9 +596,8 @@
                     <button class="mobile-filter-btn">
                         <i class="fas fa-filter"></i> 篩選
                     </button>
-                    <div class="view-toggle">
-                        <button class="active"><i class="fas fa-th-large"></i></button>
-                        <button><i class="fas fa-list"></i></button>
+                    <div class="view-toggle" style="display: none;">
+                        <button class="active"><i class="fas fa-list"></i></button>
                     </div>
                 </div>
 
@@ -641,24 +670,34 @@
         function getProductImage(product) {
             // 如果產品有指定 image_url，優先使用
             if (product.image_url && !product.image_url.includes('placeholder')) {
-                return product.image_url;
+                // 修正路徑：去除 /frontend/ 前綴
+                let imgPath = product.image_url;
+                if (imgPath.startsWith('/frontend/')) {
+                    imgPath = imgPath.replace('/frontend/', '');
+                }
+                return imgPath;
             }
 
             // 根據產品名稱智能匹配圖片
             const name = product.name.toLowerCase();
-            if (name.includes('草莓')) return 'images/strawberry_seasonal_1769721085772.png';
-            if (name.includes('櫻桃')) return 'images/cherry_box_1769721098855.png';
-            if (name.includes('葡萄') || name.includes('麝香')) return 'images/grape_muscat_1769721121816.png';
-            if (name.includes('蘋果')) return 'images/apple_aomori_1769721134815.png';
-            if (name.includes('禮盒')) return 'images/gift_box_premium_1769721412356.png';
-            if (name.includes('鳳梨')) return 'images/pineapple.png';
-            if (name.includes('柑橘') || name.includes('茂谷')) return 'images/orange.png';
-            if (name.includes('芒果')) return 'images/mango.png';
-            if (name.includes('西瓜')) return 'images/watermelon.png';
-            if (name.includes('水蜜桃') || name.includes('桃')) return 'images/peach.png';
-            if (name.includes('奇異果')) return 'images/kiwi.png';
-            if (name.includes('藍莓')) return 'images/grape.png';
-            if (name.includes('香蕉')) return 'images/hero_banner_fruits_1769721071654.png';
+            if (name.includes('草莓')) return 'images/strawberry_hakata_1769844965546.png';
+            if (name.includes('櫻桃')) return 'images/cherry_jumbo_1769845006620.png';
+            if (name.includes('葡萄') || name.includes('麝香')) return 'images/grape_muscat_1769845047647.png';
+            if (name.includes('蘋果')) return 'images/apple_aomori_1769845034559.png';
+            if (name.includes('禮盒') || name.includes('新年')) return 'images/gift_box_newyear_1769844937612.png';
+            if (name.includes('經典')) return 'images/gift_box_classic_1769844951179.png';
+            if (name.includes('鳳梨')) return 'images/pineapple_dashu_1769845077278.png';
+            if (name.includes('茂谷') || name.includes('柑')) return 'images/tangerine_maogu_1769844979524.png';
+            if (name.includes('芒果')) return 'images/mango_aiwen_1769845089844.png';
+            if (name.includes('綜合') || name.includes('水果盒')) return 'images/fruit_mix_box_1769845101821.png';
+            if (name.includes('香蕉')) return 'images/banana_taiwan_1769845115102.png';
+            if (name.includes('綠葡萄') || name.includes('無籽')) return 'images/grape_green_1769845019750.png';
+            // 新水果
+            if (name.includes('火龍果')) return 'images/dragonfruit_red_1769845145180.png';
+            if (name.includes('水蜜桃') || name.includes('白桃')) return 'images/peach_japan_1769845159395.png';
+            if (name.includes('奇異果') || name.includes('黃金')) return 'images/kiwi_gold_1769845173011.png';
+            if (name.includes('木瓜')) return 'images/papaya_taiwan_1769845185740.png';
+            if (name.includes('榴槤') || name.includes('榴蓮')) return 'images/durian_premium_1769845199680.png';
 
             // 預設圖片
             return 'images/hero_banner_fruits_1769721071654.png';
@@ -680,7 +719,7 @@
 
             grid.innerHTML = products.map(product => {
                 const discount = product.original_price && product.original_price > product.price;
-                const discountPercent = discount ? Math.round((1 - product.price / product.original_price) * 100) : 0;
+                const savedAmount = discount ? product.original_price - product.price : 0;
                 const imgSrc = getProductImage(product);
                 const categoryIcons = {
                     1: '🎁', 2: '✨', 3: '🌍', 4: '🇯🇵', 5: '🇹🇼', 6: '💰'
@@ -696,7 +735,7 @@
                                 ${product.is_seasonal ? '<span class="badge badge-seasonal">🌸 季節限定</span>' : ''}
                                 ${discount ? '<span class="badge badge-sale">🔥 特價</span>' : ''}
                             </div>
-                            <div class="product-wishlist">
+                            <div class="product-wishlist" onclick="toggleFavorite(${product.id}, event)" title="加入收藏">
                                 <i class="far fa-heart"></i>
                             </div>
                         </a>
@@ -705,16 +744,18 @@
                             <h3 class="product-name">
                                 <a href="product-detail.html?id=${product.id}">${product.name}</a>
                             </h3>
-                            <p class="product-origin" style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 10px;">
-                                ${product.description ? product.description.substring(0, 30) + '...' : '新鮮直送'}
-                            </p>
-                            <div class="product-price">
+                            <div class="product-price" id="price-${product.id}" data-unit-price="${product.price}" data-original-price="${product.original_price || 0}">
                                 <span class="current-price">$${product.price.toLocaleString()}</span>
                                 ${discount ? `<span class="original-price">$${product.original_price.toLocaleString()}</span>` : ''}
-                                ${discount ? `<span class="discount-tag">-${discountPercent}%</span>` : ''}
+                                ${discount ? `<span class="discount-tag">省 $${savedAmount.toLocaleString()}</span>` : ''}
+                            </div>
+                            <div class="product-quantity" style="display: flex; align-items: center; gap: 8px; margin: 10px 0;">
+                                <button onclick="event.preventDefault(); changeQty(${product.id}, -1, ${product.price})" style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.1);color:#fff;border:none;cursor:pointer;">−</button>
+                                <input type="number" id="qty-${product.id}" value="1" min="1" max="${product.stock}" onchange="updatePrice(${product.id}, ${product.price})" style="width:45px;text-align:center;background:rgba(255,255,255,0.1);border:none;border-radius:6px;color:#fff;padding:5px;">
+                                <button onclick="event.preventDefault(); changeQty(${product.id}, 1, ${product.price})" style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.1);color:#fff;border:none;cursor:pointer;">+</button>
                             </div>
                             <div class="product-actions">
-                                <button class="btn btn-primary" onclick="event.preventDefault(); addToCart(${product.id})" ${product.stock <= 0 ? 'disabled' : ''}>
+                                <button class="btn btn-primary" onclick="event.preventDefault(); addToCartWithQty(${product.id})" ${product.stock <= 0 ? 'disabled' : ''}>
                                     <i class="fas fa-cart-plus"></i> ${product.stock > 0 ? '加入購物車' : '已售完'}
                                 </button>
                             </div>
@@ -723,6 +764,164 @@
                 `;
             }).join('');
         }
+
+        // 數量增減函數（含價格更新）
+        function changeQty(productId, delta, unitPrice) {
+            const input = document.getElementById(`qty-${productId}`);
+            if (!input) return;
+            let value = parseInt(input.value) + delta;
+            if (value < 1) value = 1;
+            const max = parseInt(input.max) || 99;
+            if (value > max) value = max;
+            input.value = value;
+
+            // 更新價格顯示
+            updatePrice(productId, unitPrice);
+        }
+
+        // 更新價格顯示
+        function updatePrice(productId, unitPrice) {
+            const input = document.getElementById(`qty-${productId}`);
+            const priceDiv = document.getElementById(`price-${productId}`);
+            if (!input || !priceDiv) return;
+
+            const quantity = parseInt(input.value) || 1;
+            const totalPrice = unitPrice * quantity;
+            const originalPrice = parseFloat(priceDiv.dataset.originalPrice) || 0;
+            const totalOriginal = originalPrice * quantity;
+            const savedAmount = totalOriginal > totalPrice ? totalOriginal - totalPrice : 0;
+
+            // 更新現價
+            const currentPriceSpan = priceDiv.querySelector('.current-price');
+            if (currentPriceSpan) {
+                currentPriceSpan.textContent = `$${totalPrice.toLocaleString()}`;
+                currentPriceSpan.style.transform = 'scale(1.1)';
+                currentPriceSpan.style.transition = 'transform 0.2s';
+                setTimeout(() => {
+                    currentPriceSpan.style.transform = 'scale(1)';
+                }, 200);
+            }
+
+            // 更新原價
+            const originalPriceSpan = priceDiv.querySelector('.original-price');
+            if (originalPriceSpan && totalOriginal > 0) {
+                originalPriceSpan.textContent = `$${totalOriginal.toLocaleString()}`;
+            }
+
+            // 更新省錢金額
+            const discountTag = priceDiv.querySelector('.discount-tag');
+            if (discountTag && savedAmount > 0) {
+                discountTag.textContent = `省 $${savedAmount.toLocaleString()}`;
+            }
+        }
+
+        // 帶數量加入購物車
+        async function addToCartWithQty(productId) {
+            const input = document.getElementById(`qty-${productId}`);
+            const quantity = input ? parseInt(input.value) : 1;
+
+            try {
+                for (let i = 0; i < quantity; i++) {
+                    await addToCart(productId);
+                }
+                showToast(`已加入 ${quantity} 件商品到購物車！`, 'success');
+            } catch (error) {
+                showToast('加入購物車失敗', 'error');
+            }
+        }
+
+        // 當前視圖模式和快取的產品列表（預設列表視圖）
+        let currentViewMode = 'list';
+        let cachedProducts = [];
+
+        // 視圖切換函數
+        function switchView(mode) {
+            currentViewMode = mode;
+            const grid = document.getElementById('products-grid');
+            const buttons = document.querySelectorAll('.view-toggle button');
+
+            // 更新按鈕狀態
+            buttons.forEach((btn, index) => {
+                if ((mode === 'list' && index === 0) || (mode === 'grid' && index === 1)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // 根據模式切換class
+            if (mode === 'list') {
+                grid.classList.add('list-view');
+            } else {
+                grid.classList.remove('list-view');
+            }
+
+            // 重新渲染產品
+            renderProducts(cachedProducts);
+        }
+
+        // 圖庫視圖渲染（純圖片）
+        function renderGallery(products) {
+            const grid = document.getElementById('products-grid');
+
+            if (!products || products.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                    <p style="color: rgba(255,255,255,0.5);">沒有找到商品</p>
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = products.map(product => {
+                const imgSrc = getProductImage(product);
+                return `
+                    <a href="product-detail.html?id=${product.id}" class="gallery-item" style="
+                        display: block;
+                        border-radius: 16px;
+                        overflow: hidden;
+                        aspect-ratio: 1;
+                        transition: transform 0.3s ease;
+                    ">
+                        <img src="${imgSrc}" alt="${product.name}" style="
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                            transition: transform 0.3s ease;
+                        " onerror="this.src='images/hero_banner_fruits_1769721071654.png'">
+                    </a>
+                `;
+            }).join('');
+        }
+
+        // 覆蓋原始的loadProducts以快取產品
+        const originalLoadProducts = loadProducts;
+        async function loadProductsWithCache() {
+            try {
+                const params = { limit: 50 };
+                if (categoryId) params.category = categoryId;
+
+                const data = await API.products.getAll(params);
+                cachedProducts = data.products || [];
+                allProducts = cachedProducts;
+
+                document.getElementById('total-count').textContent = cachedProducts.length;
+                updateCategoryCounts(cachedProducts);
+                updateCategoryActive();
+
+                // 預設設定list-view class
+                const grid = document.getElementById('products-grid');
+                if (currentViewMode === 'list') {
+                    grid.classList.add('list-view');
+                }
+
+                // 渲染產品
+                renderProducts(cachedProducts);
+            } catch (error) {
+                console.error('載入產品失敗:', error);
+            }
+        }
+
+        // 替換原始函數
+        loadProducts = loadProductsWithCache;
 
         function updateCategoryCounts(products) {
             // 計算每個分類的產品數量
@@ -814,7 +1013,58 @@
 
         // 初始載入
         loadProducts();
+
+        // 視圖切換功能
+        document.querySelectorAll('.view-toggle button').forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                const grid = document.getElementById('products-grid');
+                const buttons = document.querySelectorAll('.view-toggle button');
+
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                if (index === 0) {
+                    // 格狀視圖
+                    grid.classList.remove('list-view');
+                } else {
+                    // 列表視圖
+                    grid.classList.add('list-view');
+                }
+            });
+        });
+
+        // 收藏功能
+        async function toggleFavorite(productId, event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!TokenManager.isLoggedIn()) {
+                alert('請先登入才能收藏商品');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const result = await API.favorites.toggle(productId);
+                const icon = event.target.closest('.product-wishlist')?.querySelector('i') || event.target;
+
+                if (result.isFavorite) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    icon.style.color = '#e74c3c';
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    icon.style.color = '';
+                }
+            } catch (error) {
+                alert('操作失敗：' + error.message);
+            }
+        }
     </script>
+    <link rel="stylesheet" href="css/cart-sidebar.css">
+    <script src="js/cart-sidebar.js"></script>
+    <script src="js/theme-content.js"></script>
 </body>
 
 </html>

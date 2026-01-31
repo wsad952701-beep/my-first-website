@@ -94,10 +94,16 @@ async function initDatabase() {
             shipping_phone TEXT,
             shipping_address TEXT,
             notes TEXT,
+            cancel_reason TEXT,
+            admin_note TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     `);
+
+    // 嘗試添加新欄位（如果表已存在但欄位不存在）
+    try { db.run('ALTER TABLE orders ADD COLUMN cancel_reason TEXT'); } catch (e) { }
+    try { db.run('ALTER TABLE orders ADD COLUMN admin_note TEXT'); } catch (e) { }
 
     db.run(`
         CREATE TABLE IF NOT EXISTS order_items (
@@ -108,6 +114,19 @@ async function initDatabase() {
             unit_price REAL NOT NULL,
             quantity INTEGER NOT NULL,
             FOREIGN KEY (order_id) REFERENCES orders(id)
+        )
+    `);
+
+    // 我的最愛表
+    db.run(`
+        CREATE TABLE IF NOT EXISTS favorites (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            product_id INTEGER NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (product_id) REFERENCES products(id),
+            UNIQUE(user_id, product_id)
         )
     `);
 

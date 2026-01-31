@@ -1,0 +1,167 @@
+/* 主題CSS變數 - 自動從後台設定載入 */
+
+/* 預設主題 */
+:root {
+    --theme-bg-primary: #0d1117;
+    --theme-bg-secondary: #161b22;
+    --theme-bg-card: #21262d;
+    --theme-accent: #f4a261;
+    --theme-accent-light: #e9c46a;
+    --theme-text: #ffffff;
+    --theme-text-muted: rgba(255, 255, 255, 0.6);
+    --theme-section-bg: linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%);
+    --theme-featured-bg: linear-gradient(180deg, #2a0f0f 0%, #1a0808 100%);
+    --theme-card-border: rgba(255, 215, 0, 0.3);
+}
+
+/* 春天主題 */
+[data-theme="spring"] {
+    --theme-bg-primary: #1a1a2e;
+    --theme-bg-secondary: #25213a;
+    --theme-bg-card: #2f2b45;
+    --theme-accent: #ffb3c1;
+    --theme-accent-light: #ff758f;
+    --theme-text: #ffffff;
+    --theme-text-muted: rgba(255, 255, 255, 0.6);
+    --theme-section-bg: linear-gradient(180deg, #2a1a2e 0%, #1a0f1e 100%);
+    --theme-featured-bg: linear-gradient(180deg, #3d1a2e 0%, #2a0f1e 100%);
+    --theme-card-border: rgba(255, 179, 193, 0.3);
+}
+
+/* 夏日主題 */
+[data-theme="summer"] {
+    --theme-bg-primary: #1a3d5c;
+    --theme-bg-secondary: #224a6d;
+    --theme-bg-card: #2a587e;
+    --theme-accent: #00d4ff;
+    --theme-accent-light: #48cae4;
+    --theme-text: #ffffff;
+    --theme-text-muted: rgba(255, 255, 255, 0.6);
+    --theme-section-bg: linear-gradient(180deg, #0a2a4a 0%, #051525 100%);
+    --theme-featured-bg: linear-gradient(180deg, #0f3d5c 0%, #0a2a4a 100%);
+    --theme-card-border: rgba(0, 212, 255, 0.3);
+}
+
+/* 秋天主題 */
+[data-theme="autumn"] {
+    --theme-bg-primary: #2d1b00;
+    --theme-bg-secondary: #3d2500;
+    --theme-bg-card: #4d3000;
+    --theme-accent: #ff9f1c;
+    --theme-accent-light: #ffbf69;
+    --theme-text: #ffffff;
+    --theme-text-muted: rgba(255, 255, 255, 0.6);
+    --theme-section-bg: linear-gradient(180deg, #3d2a00 0%, #1d1500 100%);
+    --theme-featured-bg: linear-gradient(180deg, #4d3500 0%, #2d2000 100%);
+    --theme-card-border: rgba(255, 159, 28, 0.3);
+}
+
+/* 冬季主題 */
+[data-theme="winter"] {
+    --theme-bg-primary: #0a1628;
+    --theme-bg-secondary: #0f1f38;
+    --theme-bg-card: #152848;
+    --theme-accent: #a8dadc;
+    --theme-accent-light: #457b9d;
+    --theme-text: #ffffff;
+    --theme-text-muted: rgba(255, 255, 255, 0.6);
+    --theme-section-bg: linear-gradient(180deg, #0a1628 0%, #050d14 100%);
+    --theme-featured-bg: linear-gradient(180deg, #0f1f38 0%, #0a1628 100%);
+    --theme-card-border: rgba(168, 218, 220, 0.3);
+}
+
+/* 新年主題 */
+[data-theme="newyear"] {
+    --theme-bg-primary: #1a0a0a;
+    --theme-bg-secondary: #2a1010;
+    --theme-bg-card: #3a1515;
+    --theme-accent: #dc2626;
+    --theme-accent-light: #fbbf24;
+    --theme-text: #ffffff;
+    --theme-text-muted: rgba(255, 255, 255, 0.6);
+    --theme-section-bg: linear-gradient(180deg, #2a0a0a 0%, #1a0505 100%);
+    --theme-featured-bg: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
+    --theme-card-border: rgba(251, 191, 36, 0.3);
+}
+
+/* 應用主題變數到現有樣式 */
+body {
+    background: var(--theme-bg-primary) !important;
+}
+
+.header {
+    background: var(--theme-bg-secondary) !important;
+}
+
+.card,
+.product-card,
+.order-card {
+    background: var(--theme-bg-card) !important;
+}
+
+.btn-primary,
+.action-btn.primary {
+    background: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-accent-light) 100%) !important;
+}
+
+.nav a:hover,
+.nav a.active {
+    color: var(--theme-accent) !important;
+}
+
+.accent-text {
+    color: var(--theme-accent) !important;
+}
+
+/* 價格顏色 */
+.current-price,
+.product-price .price,
+.order-total {
+    color: var(--theme-accent) !important;
+}
+
+/* 側邊欄分類高亮 */
+.category-list a.active {
+    background: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-accent-light) 100%) !important;
+}
+
+/* 首頁精選區域 - 關鍵！需隨主題變更 */
+.cny-section,
+.featured-section,
+.theme-featured-section {
+    background: var(--theme-featured-bg) !important;
+}
+
+/* 禮盒卡片區域標題 */
+.cny-header h2,
+.featured-header h2,
+.theme-section-title {
+    color: var(--theme-accent-light) !important;
+}
+
+/* 季節區域 */
+.seasonal-section {
+    background: var(--theme-section-bg) !important;
+}
+
+/* 商品卡片邊框 */
+.cny-card,
+.featured-card {
+    border: 1px solid var(--theme-card-border) !important;
+}
+
+/* 季節Tab高亮 */
+.seasonal-tab.active {
+    background: var(--theme-accent) !important;
+    color: #000 !important;
+}
+
+/* 公告條 */
+.announcement-bar {
+    background: linear-gradient(90deg, var(--theme-accent) 0%, var(--theme-accent-light) 50%, var(--theme-accent) 100%) !important;
+}
+
+/* 導航高亮標籤 */
+.nav .hot-tag {
+    background: var(--theme-accent) !important;
+}

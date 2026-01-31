@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>網站設定 | 果實搬運工 後台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+    <style>
+        .settings-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .settings-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .theme-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .theme-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .theme-card.active {
+            border-color: var(--primary-light);
+            background: rgba(45, 138, 78, 0.2);
+        }
+
+        .theme-preview {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .theme-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .theme-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .theme-description {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .theme-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-top: 10px;
+        }
+
+        .save-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 138, 78, 0.4);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span>🍇</span>
+                    <span>果實搬運工</span>
+                </div>
+                <div class="sidebar-subtitle">後台管理系統</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">主要功能</div>
+                    <a href="/admin/dashboard.html" class="nav-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>儀表板</span>
+                    </a>
+                    <a href="/admin/orders.html" class="nav-item">
+                        <i class="fas fa-box"></i>
+                        <span>訂單管理</span>
+                    </a>
+                    <a href="/admin/products.html" class="nav-item">
+                        <i class="fas fa-apple-alt"></i>
+                        <span>商品管理</span>
+                    </a>
+                    <a href="/admin/members.html" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>會員管理</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">系統設定</div>
+                    <a href="/admin/settings.html" class="nav-item active">
+                        <i class="fas fa-cog"></i>
+                        <span>網站設定</span>
+                    </a>
+                    <a href="/frontend/" class="nav-item" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>前往前台</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title">⚙️ 網站設定</h1>
+                <div class="top-bar-actions">
+                    <div class="admin-profile">
+                        <div class="admin-avatar">👤</div>
+                        <div class="admin-info">
+                            <span class="admin-name" id="admin-name">管理員</span>
+                            <span class="admin-role">系統管理員</span>
+                        </div>
+                    </div>
+                    <button class="logout-btn" title="登出">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Theme Settings -->
+            <div class="settings-section">
+                <h2><i class="fas fa-palette"></i> 前端主題設定</h2>
+                <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">
+                    選擇一個主題風格應用到前端購物網站。更換主題後，所有使用者都會看到新的外觀。
+                </p>
+
+                <div class="theme-grid" id="theme-grid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; display: flex; gap: 15px; align-items: center;">
+                    <button class="save-btn" id="save-theme-btn" disabled>
+                        <i class="fas fa-save"></i> 儲存變更
+                    </button>
+                    <span id="save-status" style="color: rgba(255,255,255,0.6);"></span>
+                </div>
+            </div>
+
+            <!-- Marquee Settings -->
+            <div class="settings-section">
+                <h2><i class="fas fa-bullhorn"></i> 跑馬燈公告設定</h2>
+                <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">
+                    設定前端網站頂部的跑馬燈公告文字。支援 emoji 符號。
+                </p>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom:8px; color: rgba(255,255,255,0.8);">公告內容</label>
+                    <textarea id="marquee-input"
+                        style="width:100%; min-height:100px; padding:15px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:#fff; font-size:1rem; resize:vertical;"
+                        placeholder="輸入跑馬燈文字..."></textarea>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom:8px; color: rgba(255,255,255,0.8);">常用範本</label>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                        <button class="template-btn"
+                            onclick="setMarqueeTemplate('🎉 歡迎光臨果實搬運工！滿$799免運費 🍇 每日新鮮直送')">歡迎語</button>
+                        <button class="template-btn"
+                            onclick="setMarqueeTemplate('🧧 新年特惠！全館商品88折起 💰 限時優惠中')">新年特惠</button>
+                        <button class="template-btn" onclick="setMarqueeTemplate('🍓 草莓季限定！日本空運草莓現貨供應 ✨')">草莓季</button>
+                        <button class="template-btn"
+                            onclick="setMarqueeTemplate('📦 年前最後一波訂購，1/25前下單保證春節前送達！')">年前通知</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button class="save-btn" id="save-marquee-btn">
+                        <i class="fas fa-save"></i> 儲存跑馬燈
+                    </button>
+                    <span id="marquee-status" style="color: rgba(255,255,255,0.6);"></span>
+                </div>
+            </div>
+
+            <style>
+                .template-btn {
+                    padding: 8px 16px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: #fff;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                    transition: all 0.3s;
+                }
+
+                .template-btn:hover {
+                    background: rgba(255, 255, 255, 0.2);
+                }
+            </style>
+        </main>
+    </div>
+
+    <script src="/admin/js/api.js"></script>
+    <script>
+        // 檢查權限
+        if (!checkAdminAuth()) {
+            // Will redirect
+        }
+
+        let themes = [];
+        let currentTheme = 'default';
+        let selectedTheme = 'default';
+
+        // 載入主題設定
+        async function loadThemes() {
+            try {
+                // 取得可用主題列表
+                const themesRes = await fetch('/api/settings/themes');
+                const themesData = await themesRes.json();
+                themes = themesData.themes || [];
+
+                // 取得當前主題
+                const currentRes = await fetch('/api/settings/theme');
+                const currentData = await currentRes.json();
+                currentTheme = currentData.theme || 'default';
+                selectedTheme = currentTheme;
+
+                renderThemes();
+            } catch (error) {
+                console.error('載入主題失敗:', error);
+                showToast('載入主題設定失敗', 'error');
+            }
+        }
+
+        function renderThemes() {
+            const container = document.getElementById('theme-grid');
+
+            container.innerHTML = themes.map(theme => `
+                <div class="theme-card ${theme.id === selectedTheme ? 'active' : ''}" 
+                     onclick="selectTheme('${theme.id}')">
+                    <div class="theme-preview">
+                        ${theme.colors.map(color => `
+                            <div class="theme-color" style="background: ${color};"></div>
+                        `).join('')}
+                    </div>
+                    <div class="theme-name">${theme.name}</div>
+                    <div class="theme-description">${theme.description}</div>
+                    ${theme.id === currentTheme ? '<span class="theme-badge">目前使用中</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function selectTheme(themeId) {
+            selectedTheme = themeId;
+            renderThemes();
+
+            const saveBtn = document.getElementById('save-theme-btn');
+            saveBtn.disabled = (selectedTheme === currentTheme);
+
+            if (selectedTheme !== currentTheme) {
+                document.getElementById('save-status').textContent = '有未儲存的變更';
+            } else {
+                document.getElementById('save-status').textContent = '';
+            }
+        }
+
+        // 儲存主題
+        document.getElementById('save-theme-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('save-theme-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 儲存中...';
+
+            try {
+                const res = await fetch('/api/settings/theme', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + TokenManager.get()
+                    },
+                    body: JSON.stringify({ theme: selectedTheme })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || '儲存失敗');
+                }
+
+                currentTheme = selectedTheme;
+                renderThemes();
+                showToast('主題設定已更新！', 'success');
+                document.getElementById('save-status').textContent = '已儲存';
+
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                btn.disabled = (selectedTheme === currentTheme);
+                btn.innerHTML = '<i class="fas fa-save"></i> 儲存變更';
+            }
+        });
+
+        // 載入管理員名稱
+        const user = TokenManager.getUser();
+        if (user) {
+            document.getElementById('admin-name').textContent = user.name;
+        }
+
+        // ====== 跑馬燈功能 ======
+        let currentMarquee = '';
+
+        async function loadMarquee() {
+            try {
+                const res = await fetch('/api/settings/marquee');
+                const data = await res.json();
+                currentMarquee = data.marquee || '';
+                document.getElementById('marquee-input').value = currentMarquee;
+            } catch (error) {
+                console.error('載入跑馬燈失敗:', error);
+            }
+        }
+
+        function setMarqueeTemplate(text) {
+            document.getElementById('marquee-input').value = text;
+        }
+
+        document.getElementById('save-marquee-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('save-marquee-btn');
+            const marqueeText = document.getElementById('marquee-input').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 儲存中...';
+
+            try {
+                const res = await fetch('/api/settings/marquee', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + TokenManager.get()
+                    },
+                    body: JSON.stringify({ marquee: marqueeText })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || '儲存失敗');
+                }
+
+                currentMarquee = marqueeText;
+                showToast('跑馬燈已更新！', 'success');
+                document.getElementById('marquee-status').textContent = '✓ 已儲存';
+                setTimeout(() => {
+                    document.getElementById('marquee-status').textContent = '';
+                }, 3000);
+
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> 儲存跑馬燈';
+            }
+        });
+
+        // 初始載入
+        loadThemes();
+        loadMarquee();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的最愛 | 果實搬運工</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/css/style.css">
+    <link rel="stylesheet" href="/frontend/css/themes.css">
+    <script src="/frontend/js/theme.js"></script>
+    <style>
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
+        }
+
+        .favorite-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .favorite-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .favorite-card-image {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+        }
+
+        .favorite-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .favorite-card-image .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(231, 76, 60, 0.9);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .favorite-card-image .remove-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .favorite-card-content {
+            padding: 20px;
+        }
+
+        .favorite-card-content h3 {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .favorite-card-content h3 a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .favorite-card-content h3 a:hover {
+            color: var(--primary-light);
+        }
+
+        .favorite-card-content .category {
+            font-size: 0.85rem;
+            color: var(--primary-light);
+            margin-bottom: 10px;
+        }
+
+        .favorite-card-content .price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-orange);
+            margin-bottom: 15px;
+        }
+
+        .favorite-card-content .original-price {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: line-through;
+            margin-left: 8px;
+        }
+
+        .favorite-card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .favorite-card-actions .btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .favorite-card-actions .btn-cart {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .favorite-card-actions .btn-cart:hover {
+            background: var(--primary-dark);
+        }
+
+        .favorite-card-actions .btn-view {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .favorite-card-actions .btn-view:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .empty-favorites {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .empty-favorites i {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        .empty-favorites h3 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .stock-badge {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .stock-badge.in-stock {
+            background: rgba(39, 174, 96, 0.9);
+            color: #fff;
+        }
+
+        .stock-badge.low-stock {
+            background: rgba(243, 156, 18, 0.9);
+            color: #fff;
+        }
+
+        .stock-badge.out-of-stock {
+            background: rgba(231, 76, 60, 0.9);
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="/frontend/" class="logo">
+                <span class="logo-icon">🍇</span>
+                <span>果實搬運工</span>
+            </a>
+            <div class="header-actions">
+                <a href="/frontend/cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" style="display: none;">0</span>
+                </a>
+                <a href="/frontend/login.html" class="login-link">
+                    <i class="fas fa-user"></i>
+                    <span>登入</span>
+                </a>
+                <a href="/frontend/orders.html" class="user-link" style="display: none;">
+                    <i class="fas fa-user-check"></i>
+                    <span class="user-name">會員</span>
+                </a>
+                <button class="logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="/frontend/">🏠 首頁</a>
+                <a href="/frontend/products.html">🛒 全部商品</a>
+                <a href="/frontend/orders.html">📦 我的訂單</a>
+                <a href="/frontend/favorites.html" class="active">❤️ 我的最愛</a>
+                <a href="/frontend/history.html">📊 歷史購買</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title"><i class="fas fa-heart" style="color: #e74c3c;"></i> 我的最愛</h1>
+        </div>
+    </div>
+
+    <main class="container">
+        <div id="favorites-content">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© 2025 果實搬運工 Fruit Porter. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/cart.js"></script>
+    <script src="/frontend/js/main.js"></script>
+    <script>
+        async function loadFavorites() {
+            const container = document.getElementById('favorites-content');
+
+            if (!TokenManager.isLoggedIn()) {
+                container.innerHTML = `
+                    <div class="empty-favorites">
+                        <i class="fas fa-heart"></i>
+                        <h3>請先登入</h3>
+                        <p>登入後即可查看您的收藏商品</p>
+                        <a href="/frontend/login.html" class="btn btn-primary" style="margin-top: 20px;">
+                            <i class="fas fa-sign-in-alt"></i> 前往登入
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const { favorites } = await API.favorites.getAll();
+
+                if (favorites.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-favorites">
+                            <i class="fas fa-heart-broken"></i>
+                            <h3>收藏清單是空的</h3>
+                            <p>瀏覽商品時點擊愛心按鈕，將喜歡的商品加入收藏</p>
+                            <a href="/frontend/products.html" class="btn btn-primary" style="margin-top: 20px;">
+                                <i class="fas fa-shopping-bag"></i> 探索商品
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 10px;">共 ${favorites.length} 件收藏商品</p>
+                    <div class="favorites-grid">
+                        ${favorites.map(item => {
+                    let stockBadge = '';
+                    if (item.stock <= 0) {
+                        stockBadge = '<span class="stock-badge out-of-stock">售罄</span>';
+                    } else if (item.stock <= 10) {
+                        stockBadge = '<span class="stock-badge low-stock">即將售罄</span>';
+                    } else {
+                        stockBadge = '<span class="stock-badge in-stock">有庫存</span>';
+                    }
+
+                    return `
+                                <div class="favorite-card" data-id="${item.product_id}">
+                                    <div class="favorite-card-image">
+                                        <button class="remove-btn" onclick="removeFavorite(${item.product_id})" title="移除收藏">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        ${stockBadge}
+                                        ${item.image_url
+                            ? `<img src="${item.image_url}" alt="${item.name}" onerror="this.src='/frontend/images/hero_banner_fruits_1769721071654.png'">`
+                            : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:3rem;">🍎</div>'
+                        }
+                                    </div>
+                                    <div class="favorite-card-content">
+                                        <p class="category">${item.category_name || '水果'}</p>
+                                        <h3><a href="/frontend/product-detail.html?id=${item.product_id}">${item.name}</a></h3>
+                                        <div class="price">
+                                            ${formatPrice(item.price)}
+                                            ${item.original_price ? `<span class="original-price">${formatPrice(item.original_price)}</span>` : ''}
+                                        </div>
+                                        <div class="favorite-card-actions">
+                                            <button class="btn btn-cart" onclick="addToCart(${item.product_id})" ${item.stock <= 0 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
+                                                <i class="fas fa-cart-plus"></i> 加入購物車
+                                            </button>
+                                            <a href="/frontend/product-detail.html?id=${item.product_id}" class="btn btn-view">
+                                                <i class="fas fa-eye"></i> 查看
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                }).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('載入收藏失敗:', error);
+                container.innerHTML = '<p style="color: #e74c3c; text-align: center;">載入失敗，請稍後再試</p>';
+            }
+        }
+
+        async function removeFavorite(productId) {
+            if (!confirm('確定要移除此收藏嗎？')) return;
+
+            try {
+                await API.favorites.remove(productId);
+                // 移除卡片動畫
+                const card = document.querySelector(`.favorite-card[data-id="${productId}"]`);
+                if (card) {
+                    card.style.transition = 'all 0.3s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        card.remove();
+                        // 檢查是否還有收藏
+                        const remaining = document.querySelectorAll('.favorite-card');
+                        if (remaining.length === 0) {
+                            loadFavorites();
+                        }
+                    }, 300);
+                }
+            } catch (error) {
+                alert('移除失敗：' + error.message);
+            }
+        }
+
+        async function addToCart(productId) {
+            if (!TokenManager.isLoggedIn()) {
+                window.location.href = '/frontend/login.html';
+                return;
+            }
+
+            try {
+                await API.cart.add(productId, 1);
+                alert('已加入購物車！');
+                updateCartCount();
+            } catch (error) {
+                alert('加入購物車失敗：' + error.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadFavorites);
+    </script>
+    <link rel="stylesheet" href="/frontend/css/cart-sidebar.css">
+    <script src="/frontend/js/cart-sidebar.js"></script>
+</body>
+
+</html>

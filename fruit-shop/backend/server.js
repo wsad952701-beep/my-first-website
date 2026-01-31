@@ -39,6 +39,8 @@ async function startServer() {
         app.use('/api/orders', require('./routes/orders'));
         app.use('/api/admin', require('./routes/admin'));
         app.use('/api/upload', require('./routes/upload'));
+        app.use('/api/favorites', require('./routes/favorites'));
+        app.use('/api/settings', require('./routes/settings'));
 
         app.listen(PORT, () => {
             console.log('');

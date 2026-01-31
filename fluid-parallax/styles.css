@@ -1,0 +1,296 @@
+/* ========================================
+   FLUID PARALLAX - STYLES
+   Inspired by Active Theory
+======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-bg: #0a0a0f;
+    --color-primary: #7c3aed;
+    --color-secondary: #06b6d4;
+    --color-accent: #f472b6;
+    --color-text: #f0f0f5;
+    --color-text-muted: rgba(240, 240, 245, 0.6);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow-x: hidden;
+    cursor: crosshair;
+}
+
+/* ========================================
+   CANVAS - Full Screen Background
+======================================== */
+
+#webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ========================================
+   CONTENT SECTIONS
+======================================== */
+
+.content {
+    position: relative;
+    z-index: 1;
+}
+
+section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    position: relative;
+}
+
+.section-content {
+    text-align: center;
+    transform: translateZ(0);
+    max-width: 800px;
+}
+
+/* ========================================
+   TYPOGRAPHY
+======================================== */
+
+h1 {
+    font-size: clamp(4rem, 15vw, 12rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    background: linear-gradient(135deg,
+            var(--color-primary) 0%,
+            var(--color-secondary) 50%,
+            var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s ease-in-out infinite;
+    background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+h2 {
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(90deg,
+            var(--color-text) 0%,
+            var(--color-secondary) 50%,
+            var(--color-text) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% 100%;
+    animation: textFlow 4s ease-in-out infinite;
+}
+
+@keyframes textFlow {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.subtitle {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    font-weight: 300;
+    color: var(--color-text-muted);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-top: 1.5rem;
+}
+
+p {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 300;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* ========================================
+   HERO SECTION
+======================================== */
+
+.hero {
+    min-height: 100vh;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    animation: fadeInUp 1s ease-out 1s forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+}
+
+.scroll-indicator span {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.scroll-arrow {
+    width: 24px;
+    height: 40px;
+    border: 2px solid var(--color-text-muted);
+    border-radius: 12px;
+    position: relative;
+}
+
+.scroll-arrow::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 8px;
+    background: var(--color-secondary);
+    border-radius: 2px;
+    animation: scrollBounce 1.5s ease-in-out infinite;
+}
+
+@keyframes scrollBounce {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(12px);
+        opacity: 0.3;
+    }
+}
+
+/* ========================================
+   GLASS MORPHISM CARDS
+======================================== */
+
+.section-content {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 4rem;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+        box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.section-content:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow:
+        0 30px 60px -12px rgba(124, 58, 237, 0.15),
+        0 18px 36px -18px rgba(6, 182, 212, 0.2);
+    border-color: rgba(124, 58, 237, 0.2);
+}
+
+.hero .section-content {
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+}
+
+.hero .section-content:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 768px) {
+    .section-content {
+        padding: 2rem;
+    }
+
+    section {
+        padding: 2rem 1rem;
+    }
+}
+
+/* ========================================
+   LOADING STATE
+======================================== */
+
+body.loading {
+    overflow: hidden;
+}
+
+body.loading::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: var(--color-bg);
+    z-index: 9999;
+    animation: fadeOut 0.5s ease-out 0.5s forwards;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        pointer-events: none;
+    }
+}

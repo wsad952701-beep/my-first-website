@@ -1,26 +1,26 @@
 // API 配置
 const API_BASE = '/api';
 
-// Token 管理
+// Token 管理 (前端專用 - 使用不同的 key 避免與後台衝突)
 const TokenManager = {
     get() {
-        return localStorage.getItem('auth_token');
+        return localStorage.getItem('frontend_auth_token');
     },
     set(token) {
-        localStorage.setItem('auth_token', token);
+        localStorage.setItem('frontend_auth_token', token);
     },
     remove() {
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem('frontend_auth_token');
     },
     getUser() {
-        const userStr = localStorage.getItem('user_info');
+        const userStr = localStorage.getItem('frontend_user_info');
         return userStr ? JSON.parse(userStr) : null;
     },
     setUser(user) {
-        localStorage.setItem('user_info', JSON.stringify(user));
+        localStorage.setItem('frontend_user_info', JSON.stringify(user));
     },
     removeUser() {
-        localStorage.removeItem('user_info');
+        localStorage.removeItem('frontend_user_info');
     },
     isLoggedIn() {
         return !!this.get();
@@ -159,6 +159,55 @@ const API = {
         },
         async getById(id) {
             return apiRequest(`/orders/${id}`);
+        },
+        async cancel(id, cancel_reason) {
+            return apiRequest(`/orders/${id}/cancel`, {
+                method: 'PUT',
+                body: { cancel_reason }
+            });
+        },
+        async getHistory() {
+            return apiRequest('/orders/history/summary');
+        },
+        async getDetail(id) {
+            return apiRequest(`/orders/${id}`);
+        },
+        async delete(id) {
+            return apiRequest(`/orders/${id}`, {
+                method: 'DELETE'
+            });
+        },
+        async clearAll() {
+            return apiRequest('/orders/clear/all', {
+                method: 'DELETE'
+            });
+        }
+    },
+
+    // 收藏
+    favorites: {
+        async getAll() {
+            return apiRequest('/favorites');
+        },
+        async check(productId) {
+            return apiRequest(`/favorites/check/${productId}`);
+        },
+        async add(product_id) {
+            return apiRequest('/favorites', {
+                method: 'POST',
+                body: { product_id }
+            });
+        },
+        async remove(productId) {
+            return apiRequest(`/favorites/${productId}`, {
+                method: 'DELETE'
+            });
+        },
+        async toggle(product_id) {
+            return apiRequest('/favorites/toggle', {
+                method: 'POST',
+                body: { product_id }
+            });
         }
     }
 };
@@ -166,3 +215,4 @@ const API = {
 // 匯出
 window.API = API;
 window.TokenManager = TokenManager;
+

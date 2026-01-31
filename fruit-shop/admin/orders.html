@@ -157,6 +157,48 @@
         </div>
     </div>
 
+    <!-- Cancel Order Modal -->
+    <div class="modal-overlay" id="cancel-modal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle" style="color: #f39c12;"></i> 取消訂單</h3>
+                <button class="modal-close" onclick="closeCancelModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 20px;">訂單編號：<strong id="cancel-order-info"></strong></p>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8);">取消原因（選填）：</label>
+                    <select id="cancel-reason"
+                        style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: var(--bg-dark); color: #fff;">
+                        <option value="">-- 請選擇原因 --</option>
+                        <option value="客戶要求取消">客戶要求取消</option>
+                        <option value="庫存不足">庫存不足</option>
+                        <option value="付款問題">付款問題</option>
+                        <option value="配送問題">配送問題</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label
+                        style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8);">給會員的備註（會顯示在會員訂單中）：</label>
+                    <textarea id="admin-note" rows="3" placeholder="如：很抱歉，因庫存不足無法出貨，額度已退還..."
+                        style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: var(--bg-dark); color: #fff; resize: vertical;"></textarea>
+                </div>
+
+                <p style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i> 取消後將自動退還會員額度並恢復庫存
+                </p>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="action-btn outline" onclick="closeCancelModal()">返回</button>
+                <button class="action-btn" style="background: #7f8c8d;" onclick="confirmCancel(false)">直接取消</button>
+                <button class="action-btn" style="background: #e74c3c;" onclick="confirmCancel(true)">取消並備註</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/admin/js/api.js"></script>
     <script>
         if (!checkAdminAuth()) { }
@@ -291,6 +333,12 @@
         }
 
         async function updateStatus(orderId, status) {
+            // 如果是取消訂單，顯示備註彈窗
+            if (status === 'cancelled') {
+                showCancelModal(orderId);
+                return;
+            }
+
             try {
                 await AdminAPI.orders.updateStatus(orderId, status);
                 showToast('訂單狀態已更新', 'success');
@@ -303,6 +351,41 @@
             } catch (error) {
                 showToast(error.message, 'error');
                 loadOrders(); // 重新載入
+            }
+        }
+
+        let currentCancelOrderId = null;
+
+        function showCancelModal(orderId) {
+            currentCancelOrderId = orderId;
+            const order = allOrders.find(o => o.id === orderId);
+            document.getElementById('cancel-order-info').textContent = order ? order.order_number : '';
+            document.getElementById('cancel-reason').value = '';
+            document.getElementById('admin-note').value = '';
+            document.getElementById('cancel-modal').classList.add('show');
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancel-modal').classList.remove('show');
+            currentCancelOrderId = null;
+            // 恢復下拉選單的狀態
+            loadOrders();
+        }
+
+        async function confirmCancel(withNote = true) {
+            const cancel_reason = document.getElementById('cancel-reason').value;
+            const admin_note = document.getElementById('admin-note').value;
+
+            try {
+                await AdminAPI.orders.updateStatus(currentCancelOrderId, 'cancelled', {
+                    cancel_reason: cancel_reason || null,
+                    admin_note: admin_note || null
+                });
+                showToast('訂單已取消' + (withNote && (cancel_reason || admin_note) ? '（含備註）' : ''), 'success');
+                closeCancelModal();
+                loadOrders();
+            } catch (error) {
+                showToast(error.message, 'error');
             }
         }
 

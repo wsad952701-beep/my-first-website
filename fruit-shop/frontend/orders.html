@@ -11,6 +11,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/frontend/css/style.css">
+    <link rel="stylesheet" href="/frontend/css/themes.css">
+    <script src="/frontend/js/theme.js"></script>
 </head>
 
 <body>
@@ -41,8 +43,12 @@
     </header>
 
     <div class="page-header">
-        <div class="container">
+        <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
             <h1 class="page-title"><i class="fas fa-box"></i> 我的訂單</h1>
+            <button onclick="clearAllOrders()" class="btn"
+                style="background:rgba(155,89,182,0.2); border:1px solid rgba(155,89,182,0.5); color:#9b59b6; padding:10px 20px; border-radius:8px; cursor:pointer;">
+                <i class="fas fa-trash-alt"></i> 清除已完成訂單
+            </button>
         </div>
     </div>
 
@@ -65,7 +71,90 @@
     <script src="/frontend/js/api.js"></script>
     <script src="/frontend/js/cart.js"></script>
     <script src="/frontend/js/main.js"></script>
+
+    <!-- 取消訂單確認彈窗 -->
+    <div id="cancel-modal"
+        style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+        <div
+            style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 30px; border-radius: 16px; max-width: 450px; width: 90%; border: 1px solid rgba(255,255,255,0.1);">
+            <h3 style="margin: 0 0 20px 0; color: #fff; font-size: 1.3rem;">
+                <i class="fas fa-exclamation-triangle" style="color: #f39c12;"></i> 取消訂單
+            </h3>
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 15px;">訂單編號：<span id="cancel-order-number"></span>
+            </p>
+            <div style="margin-bottom: 20px;">
+                <label style="color: rgba(255,255,255,0.8); display: block; margin-bottom: 8px;">請填寫取消原因：</label>
+                <select id="cancel-reason-select"
+                    style="width:100%; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:#0f0f1e; color:#fff; margin-bottom:10px;">
+                    <option value="">-- 請選擇原因 --</option>
+                    <option value="訂購錯誤">訂購錯誤</option>
+                    <option value="重複訂購">重複訂購</option>
+                    <option value="不想要了">不想要了</option>
+                    <option value="想更改訂購內容">想更改訂購內容</option>
+                    <option value="找到更便宜的">找到更便宜的</option>
+                    <option value="other">其他原因</option>
+                </select>
+                <textarea id="cancel-reason-text" placeholder="請說明其他原因..."
+                    style="width:100%; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:#0f0f1e; color:#fff; min-height:80px; display:none; resize:vertical;"></textarea>
+            </div>
+            <p style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> 取消後將退還會員額度
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button id="cancel-modal-close"
+                    style="padding: 10px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: #fff; cursor: pointer;">返回</button>
+                <button id="cancel-confirm-btn"
+                    style="padding: 10px 20px; border-radius: 8px; border: none; background: #e74c3c; color: #fff; cursor: pointer; font-weight: 600;">確認取消訂單</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let currentCancelOrderId = null;
+
+        // 顯示/隱藏其他原因文字框
+        document.getElementById('cancel-reason-select').addEventListener('change', function () {
+            const textArea = document.getElementById('cancel-reason-text');
+            textArea.style.display = this.value === 'other' ? 'block' : 'none';
+        });
+
+        // 關閉彈窗
+        document.getElementById('cancel-modal-close').addEventListener('click', function () {
+            document.getElementById('cancel-modal').style.display = 'none';
+            currentCancelOrderId = null;
+        });
+
+        // 確認取消訂單
+        document.getElementById('cancel-confirm-btn').addEventListener('click', async function () {
+            const selectValue = document.getElementById('cancel-reason-select').value;
+            const textValue = document.getElementById('cancel-reason-text').value;
+
+            let reason = selectValue === 'other' ? textValue : selectValue;
+
+            if (!reason || reason.trim() === '') {
+                alert('請選擇或填寫取消原因');
+                return;
+            }
+
+            try {
+                await API.orders.cancel(currentCancelOrderId, reason);
+                alert('訂單已取消，額度已退還');
+                document.getElementById('cancel-modal').style.display = 'none';
+                loadOrders(); // 重新載入訂單
+            } catch (error) {
+                alert('取消失敗：' + error.message);
+            }
+        });
+
+        function showCancelModal(orderId, orderNumber) {
+            currentCancelOrderId = orderId;
+            document.getElementById('cancel-order-number').textContent = orderNumber;
+            document.getElementById('cancel-reason-select').value = '';
+            document.getElementById('cancel-reason-text').value = '';
+            document.getElementById('cancel-reason-text').style.display = 'none';
+            document.getElementById('cancel-modal').style.display = 'flex';
+        }
+
         async function loadOrders() {
             const container = document.getElementById('orders-list');
 
@@ -93,6 +182,39 @@
 
                 container.innerHTML = await Promise.all(orders.map(async order => {
                     const { items } = await API.orders.getById(order.id);
+
+                    // 取消按鈕 (僅待處理狀態可取消)
+                    const cancelBtn = order.status === 'pending' ? `
+                        <button onclick="showCancelModal(${order.id}, '${order.order_number}')" 
+                                class="btn" style="background:#e74c3c; color:#fff; padding:8px 16px; border-radius:8px; font-size:0.85rem; cursor:pointer; margin-top:10px;">
+                            <i class="fas fa-times"></i> 取消訂單
+                        </button>
+                    ` : '';
+
+                    // 刪除按鈕 (僅已完成或已取消的訂單可刪除)
+                    const deleteBtn = ['completed', 'cancelled', 'delivered'].includes(order.status) ? `
+                        <button onclick="deleteOrder(${order.id}, '${order.order_number}')" 
+                                class="btn" style="background:rgba(155,89,182,0.2); border:1px solid rgba(155,89,182,0.5); color:#9b59b6; padding:8px 16px; border-radius:8px; font-size:0.85rem; cursor:pointer; margin-top:10px; margin-left:10px;">
+                            <i class="fas fa-trash-alt"></i> 刪除記錄
+                        </button>
+                    ` : '';
+
+                    // 取消原因顯示
+                    const cancelReasonHtml = order.cancel_reason ? `
+                        <div style="background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.3); border-radius:8px; padding:10px 15px; margin-top:10px;">
+                            <span style="color:#e74c3c; font-weight:600;"><i class="fas fa-info-circle"></i> 取消原因：</span>
+                            <span style="color:rgba(255,255,255,0.8);">${order.cancel_reason}</span>
+                        </div>
+                    ` : '';
+
+                    // 後台備註顯示
+                    const adminNoteHtml = order.admin_note ? `
+                        <div style="background:rgba(52,152,219,0.1); border:1px solid rgba(52,152,219,0.3); border-radius:8px; padding:10px 15px; margin-top:10px;">
+                            <span style="color:#3498db; font-weight:600;"><i class="fas fa-comment"></i> 客服備註：</span>
+                            <span style="color:rgba(255,255,255,0.8);">${order.admin_note}</span>
+                        </div>
+                    ` : '';
+
                     return `
                         <div class="order-card">
                             <div class="order-header">
@@ -121,6 +243,8 @@
                                         </div>
                                     `).join('')}
                                 </div>
+                                ${cancelReasonHtml}
+                                ${adminNoteHtml}
                                 <div class="order-footer">
                                     <div>
                                         <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
@@ -129,6 +253,8 @@
                                         <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
                                             地址：${order.shipping_address}
                                         </div>
+                                        ${cancelBtn}
+                                        ${deleteBtn}
                                     </div>
                                     <div class="order-total">
                                         總金額：<span>${formatPrice(order.total_amount)}</span>
@@ -144,8 +270,36 @@
             }
         }
 
+        // 刪除單筆訂單
+        async function deleteOrder(orderId, orderNumber) {
+            if (!confirm(`確定要刪除訂單 ${orderNumber} 的記錄嗎？\n此操作無法復原。`)) return;
+
+            try {
+                await API.orders.delete(orderId);
+                alert('訂單記錄已刪除');
+                loadOrders();
+            } catch (error) {
+                alert('刪除失敗：' + error.message);
+            }
+        }
+
+        // 清除所有已完成/已取消訂單
+        async function clearAllOrders() {
+            if (!confirm('確定要清除所有已完成和已取消的訂單記錄嗎？\n此操作無法復原。')) return;
+
+            try {
+                const result = await API.orders.clearAll();
+                alert(result.message);
+                loadOrders();
+            } catch (error) {
+                alert('清除失敗：' + error.message);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', loadOrders);
     </script>
+    <link rel="stylesheet" href="/frontend/css/cart-sidebar.css">
+    <script src="/frontend/js/cart-sidebar.js"></script>
 </body>
 
 </html>

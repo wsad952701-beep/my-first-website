@@ -1,26 +1,26 @@
 // Admin API 配置
 const API_BASE = '/api';
 
-// Token 管理
+// Token 管理 (後台專用 - 使用不同的 key 避免與前端衝突)
 const TokenManager = {
     get() {
-        return localStorage.getItem('auth_token');
+        return localStorage.getItem('admin_auth_token');
     },
     set(token) {
-        localStorage.setItem('auth_token', token);
+        localStorage.setItem('admin_auth_token', token);
     },
     remove() {
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem('admin_auth_token');
     },
     getUser() {
-        const userStr = localStorage.getItem('user_info');
+        const userStr = localStorage.getItem('admin_user_info');
         return userStr ? JSON.parse(userStr) : null;
     },
     setUser(user) {
-        localStorage.setItem('user_info', JSON.stringify(user));
+        localStorage.setItem('admin_user_info', JSON.stringify(user));
     },
     removeUser() {
-        localStorage.removeItem('user_info');
+        localStorage.removeItem('admin_user_info');
     },
     isLoggedIn() {
         return !!this.get();
@@ -104,10 +104,10 @@ const AdminAPI = {
         async getById(id) {
             return apiRequest(`/admin/orders/${id}`);
         },
-        async updateStatus(id, status) {
+        async updateStatus(id, status, options = {}) {
             return apiRequest(`/admin/orders/${id}/status`, {
                 method: 'PUT',
-                body: { status }
+                body: { status, cancel_reason: options.cancel_reason, admin_note: options.admin_note }
             });
         }
     },
