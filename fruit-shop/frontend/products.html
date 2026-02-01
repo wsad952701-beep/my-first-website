@@ -472,21 +472,102 @@
 
         @media (max-width: 768px) {
             .products-page {
-                margin-top: 110px;
-                padding: 20px 0;
+                margin-top: 90px;
+                padding: 15px 0;
+                flex-direction: column;
+            }
+
+            .products-header {
+                flex-direction: column;
+                gap: 12px;
+                padding: 12px;
+                margin-bottom: 15px;
             }
 
             .products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .product-card {
+                display: flex;
+                flex-direction: row;
+                border-radius: 14px;
             }
 
             .product-image {
-                height: 160px;
+                width: 120px;
+                min-width: 120px;
+                height: 120px;
             }
 
             .product-info {
-                padding: 15px;
+                padding: 12px;
+                flex: 1;
+            }
+
+            .product-name {
+                font-size: 0.95rem;
+                min-height: auto;
+                -webkit-line-clamp: 2;
+                line-clamp: 2;
+            }
+
+            .product-price {
+                padding: 8px;
+                margin-bottom: 10px;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .current-price {
+                font-size: 1.2rem;
+            }
+
+            .original-price {
+                font-size: 0.8rem;
+            }
+
+            .discount-tag {
+                font-size: 0.7rem;
+                padding: 3px 8px;
+            }
+
+            .product-quantity {
+                margin: 8px 0 !important;
+            }
+
+            .product-quantity button {
+                width: 24px !important;
+                height: 24px !important;
+            }
+
+            .product-quantity input {
+                width: 35px !important;
+                padding: 3px !important;
+            }
+
+            .product-actions {
+                flex-direction: column;
+            }
+
+            .product-actions .btn {
+                padding: 10px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .product-badges {
+                top: 8px;
+                left: 8px;
+            }
+
+            .badge {
+                padding: 3px 6px;
+                font-size: 0.65rem;
+            }
+
+            .product-wishlist {
+                display: none;
             }
         }
     </style>
