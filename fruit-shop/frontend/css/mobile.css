@@ -773,9 +773,9 @@
         border-radius: 12px;
     }
 
-    /* 浮動 LINE 按鈕 */
+    /* 浮動 LINE 按鈕 - 確保不被底部導航遮擋 */
     .floating-line {
-        bottom: 80px;
+        bottom: 100px !important;
         /* 底部導航上方 */
         right: 16px;
     }
