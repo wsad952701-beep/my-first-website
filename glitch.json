@@ -1,0 +1,11 @@
+{
+    "install": "cd fruit-shop/backend && npm install",
+    "start": "cd fruit-shop/backend && npm start",
+    "watch": {
+        "restart": {
+            "include": [
+                "fruit-shop/backend/**/*.js"
+            ]
+        }
+    }
+}
