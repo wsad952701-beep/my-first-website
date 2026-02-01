@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/mobile.css">
     <script src="js/theme.js"></script>
     <style>
         /* 首頁專用加強樣式 */
@@ -630,6 +631,12 @@
                 <button type="submit"><i class="fas fa-search"></i></button>
             </div>
             <div class="header-actions">
+                <!-- 手機版漢堡選單 -->
+                <div class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
                 <a href="cart.html" class="cart-icon">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" style="display: none;">0</span>
@@ -1032,6 +1039,66 @@
     <link rel="stylesheet" href="css/cart-sidebar.css">
     <script src="js/cart-sidebar.js"></script>
     <script src="js/theme-content.js"></script>
+
+    <!-- 手機版底部導航 -->
+    <nav class="mobile-bottom-nav">
+        <div class="mobile-bottom-nav-content">
+            <a href="index.html" class="mobile-nav-item active">
+                <i class="fas fa-home"></i>
+                <span>首頁</span>
+            </a>
+            <a href="products.html" class="mobile-nav-item">
+                <i class="fas fa-store"></i>
+                <span>商品</span>
+            </a>
+            <a href="cart.html" class="mobile-nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>購物車</span>
+                <span class="cart-badge" id="mobileCartBadge" style="display:none;">0</span>
+            </a>
+            <a href="favorites.html" class="mobile-nav-item">
+                <i class="fas fa-heart"></i>
+                <span>收藏</span>
+            </a>
+            <a href="orders.html" class="mobile-nav-item">
+                <i class="fas fa-user"></i>
+                <span>會員</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // 手機版漢堡選單控制
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const nav = document.querySelector('.nav');
+
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function () {
+                this.classList.toggle('active');
+                nav.classList.toggle('mobile-open');
+                document.body.style.overflow = nav.classList.contains('mobile-open') ? 'hidden' : '';
+            });
+        }
+
+        // 同步購物車數量到手機底部導航
+        function updateMobileCartBadge() {
+            const cartCount = document.querySelector('.cart-count');
+            const mobileCartBadge = document.getElementById('mobileCartBadge');
+            if (cartCount && mobileCartBadge) {
+                const count = parseInt(cartCount.textContent) || 0;
+                mobileCartBadge.textContent = count;
+                mobileCartBadge.style.display = count > 0 ? 'block' : 'none';
+            }
+        }
+
+        // 監聽購物車變化
+        const cartCountObserver = new MutationObserver(updateMobileCartBadge);
+        const cartCountEl = document.querySelector('.cart-count');
+        if (cartCountEl) {
+            cartCountObserver.observe(cartCountEl, { childList: true, characterData: true, subtree: true });
+            updateMobileCartBadge();
+        }
+    </script>
 </body>
 
 </html>
