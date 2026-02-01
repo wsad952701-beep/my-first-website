@@ -194,6 +194,14 @@ function displayUserCredit(credit) {
         }
         // 插入到 user-link 元素後面
         userLink.insertAdjacentElement('afterend', creditBadge);
+
+        // 添加點擊事件 - 顯示充值彈窗
+        creditBadge.style.cursor = 'pointer';
+        creditBadge.addEventListener('click', function () {
+            if (typeof showPointsModal === 'function') {
+                showPointsModal();
+            }
+        });
     }
 }
 
