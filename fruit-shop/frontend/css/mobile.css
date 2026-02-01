@@ -230,14 +230,29 @@
         font-size: 0.9rem;
     }
 
-    /* 公告條優化 */
+    /* 公告條優化 - 手機版單行靜態顯示 */
     .announcement-bar {
-        font-size: 0.8rem;
-        padding: 8px 0;
+        font-size: 0.75rem !important;
+        padding: 6px 12px !important;
+        animation: none !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+    }
+
+    .announcement-bar span {
+        display: block;
+        animation: none !important;
+        transform: none !important;
+        padding: 0 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .header {
-        top: 32px !important;
+        top: 28px !important;
     }
 
     /* 促銷橫幅格子優化 */

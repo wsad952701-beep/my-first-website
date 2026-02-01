@@ -611,8 +611,12 @@
             .then(data => {
                 const content = data.marquee || '🎉 歡迎光臨果實搬運工！';
                 const marqueeEl = document.getElementById('marquee-content');
-                // 複製多份以實現無縫滾動效果
-                marqueeEl.innerHTML = content + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + content + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + content;
+                // 手機版只顯示一次，桌面版複製2次實現無縫滾動
+                if (window.innerWidth <= 768) {
+                    marqueeEl.innerHTML = content;
+                } else {
+                    marqueeEl.innerHTML = content + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + content;
+                }
             })
             .catch(() => {
                 document.getElementById('marquee-content').textContent = '🎉 歡迎光臨果實搬運工！滿$799免運費 🍇';
