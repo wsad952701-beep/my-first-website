@@ -1,10 +1,12 @@
 services:
   - type: web
-    name: fruit-shop
+    name: fruit-porter
     runtime: node
-    rootDir: fruit-shop
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
+    rootDir: fruit-shop/backend
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: 18.18.0
